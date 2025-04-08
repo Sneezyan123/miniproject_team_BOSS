@@ -7,11 +7,9 @@ import Button from '../common/Button';
 
 const RegisterForm = () => {
   const [userData, setUserData] = useState({
-    username: '',
     email: '',
     password: '',
-    confirmPassword: '',
-    militaryUnit: ''
+    role:"user"
   });
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
@@ -34,12 +32,12 @@ const RegisterForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    const validationResult = validateRegistrationForm(userData);
+   // const validationResult = validateRegistrationForm(userData);
     
-    if (!validationResult.isValid) {
-      setErrors(validationResult.errors);
-      return;
-    }
+    // if (!validationResult.isValid) {
+    //   setErrors(validationResult.errors);
+    //   return;
+    // }
 
     try {
       await register(userData);
@@ -53,15 +51,6 @@ const RegisterForm = () => {
     <div className="register-form">
       <h2 className="text-2xl mb-4 text-center">Реєстрація</h2>
       <form onSubmit={handleSubmit}>
-        <Input
-          type="text"
-          name="username"
-          label="Ім'я користувача"
-          value={userData.username}
-          onChange={handleChange}
-          error={errors.username}
-          required
-        />
         <Input
           type="email"
           name="email"
@@ -80,7 +69,7 @@ const RegisterForm = () => {
           error={errors.password}
           required
         />
-        <Input
+        {/* <Input
           type="password"
           name="confirmPassword"
           label="Підтвердження паролю"
@@ -88,17 +77,17 @@ const RegisterForm = () => {
           onChange={handleChange}
           error={errors.confirmPassword}
           required
-        />
-        <Input
+        /> */}
+        {/* <Input
           type="text"
           name="militaryUnit"
           label="Військова частина"
           value={userData.militaryUnit}
           onChange={handleChange}
           error={errors.militaryUnit}
-        />
+        /> */}
         {errors.submit && <p className="text-red-500 mb-4">{errors.submit}</p>}
-        <Button type="submit" className="w-full">
+        <Button type="submit" className="w-full" onSubmit={handleSubmit}>
           Зареєструватися
         </Button>
       </form>

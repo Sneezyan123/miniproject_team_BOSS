@@ -14,6 +14,8 @@ db_dependency = Annotated[AsyncSession, Depends(get_db)]
 
 @router.post("/register")
 async def create(data: user_dto.User, db: db_dependency):
+    print("HERE WE ARE")
+    print(data)
     user = await user_service.create_user(data, db)
     if not user:
         raise HTTPException(

@@ -8,7 +8,7 @@ from database.database import get_db
 from fastapi import Depends
 from typing import Annotated
 from fastapi import HTTPException
-from backend.config import settings
+from config import settings
 from sqlalchemy.ext.asyncio import AsyncSession
 import database.database as db_dependency
 from services.hash import verify_password

@@ -26,6 +26,7 @@ const LoginForm = () => {
     setError('');
     
     try {
+      console.log(credentials);
       const userData = await login(credentials);
       authLogin(userData);
       navigate('/dashboard');
