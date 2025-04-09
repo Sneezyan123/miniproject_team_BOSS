@@ -6,12 +6,12 @@ const HomePage = () => {
     <div className="hero-section">
       <div className="hero-content">
         <div className="hero-title-card">
-          <h1 className="hero-title">Title</h1>
-          <p className="hero-subtitle">Subtitle</p>
+          <h1 className="hero-title">Вітаємо!</h1>
+          <p className="hero-subtitle">якийсь текст</p>
         </div>
         
         <div className="hero-text-card">
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
+          <p>якийсь текст подовше</p>
         </div>
 
         <div className="hero-buttons">

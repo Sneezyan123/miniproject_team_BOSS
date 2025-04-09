@@ -4,7 +4,7 @@
 @tailwind utilities;
 
 :root {
-  --primary-bg: #f5f5f5;
+  --primary-bg: #ede1c8;
   --primary-dark: #2C3E50;
   --text-primary: #333333;
   --text-secondary: #666666;
@@ -136,7 +136,7 @@ nav.main-menu {
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: url('../images/background.png');
+  background-image: url('./assets/images/background.png');
   background-size: cover;
   opacity: 0.8;
   z-index: -1;

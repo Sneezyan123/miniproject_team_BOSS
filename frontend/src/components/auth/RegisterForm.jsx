@@ -87,7 +87,7 @@ const RegisterForm = () => {
           error={errors.militaryUnit}
         /> */}
         {errors.submit && <p className="text-red-500 mb-4">{errors.submit}</p>}
-        <Button type="submit" className="w-full" onSubmit={handleSubmit}>
+        <Button type="submit" className="sbmbtn " onSubmit={handleSubmit}>
           Зареєструватися
         </Button>
       </form>

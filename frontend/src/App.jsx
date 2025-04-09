@@ -6,6 +6,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import PrivateRoute from './routes/PrivateRoute';
+import StoragePage from './pages/StoragePage';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
             </PrivateRoute>
           } 
         />
+        <Route path="storage" element={<StoragePage/>}/>
       </Route>
     </Routes>
   );

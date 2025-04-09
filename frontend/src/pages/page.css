@@ -3,9 +3,12 @@
     height:700px;
 }
 .register-page{
-    width:400px;
+    width:500px;
     height:700px;
     margin: auto;
     margin-top: 15px;
+    background-color: #f0ece4;
+    padding: 25px;
+    border-radius: 10%;
 }
 
