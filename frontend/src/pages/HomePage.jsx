@@ -11,7 +11,7 @@ const HomePage = () => {
         </div>
         
         <div className="hero-text-card">
-          <p>якийсь текст подовше</p>
+          <p>якийсь текст </p>
         </div>
 
         <div className="hero-buttons">

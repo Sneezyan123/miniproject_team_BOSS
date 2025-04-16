@@ -1,14 +1,19 @@
 .login-page{
-    width:400px;
+    width:500px;
     height:700px;
+    margin: auto;
+    padding: 20px;
+    margin-top: 15px;
+    border-radius: 15px;
+    background-color:white;
 }
 .register-page{
     width:500px;
     height:700px;
     margin: auto;
+    padding: 20px;
     margin-top: 15px;
-    background-color: #f0ece4;
-    padding: 25px;
-    border-radius: 10%;
+    border-radius: 15px;
+    background-color:white;
 }
 

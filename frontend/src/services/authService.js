@@ -1,11 +1,11 @@
 import axios from 'axios';
 
-const API_URL = "http://0.0.0.0:8000/user";
+const API_URL = "http://localhost:8000/user";  // Changed from 0.0.0.0 to localhost
 
 export const register = async (userData) => {
   try {
     console.log(userData)
-    const response = await axios.post(`http://localhost:8000/user/register`, userData);
+    const response = await axios.post(`http://localhost:8000/user/register`, userData);  // Changed URL
     return response.data;
   } catch (error) {
     throw error.response ? error.response.data : new Error('Помилка реєстрації');

@@ -1,27 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { getAllWeapons } from "../services/weaponService";
-
-const StoragePage = () => {
-  const [weapons, setWeapons] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    fetchWeapons();
-  }, []);
-
-  const fetchWeapons = async () => {
-    try {
-      const data = await getAllWeapons();
-      console.log(data);
-      setWeapons(data);
-      setLoading(false);
-    } catch (err) {
-      setError("Failed to fetch weapons");
-      setLoading(false);
-    }
-  };
-
+import React from "react";
+const Sclad = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -104,23 +82,34 @@ const StoragePage = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {loading ? (
-              <p>Loading weapons...</p>
-            ) : error ? (
-              <p className="text-red-500">{error}</p>
-            ) : (
-              weapons.map((weapon) => (
-                <div key={weapon.id} className="bg-white shadow-md rounded-lg p-4">
-                  <img
-                    src={weapon.img_url || "/default-weapon.jpg"}
-                    alt={weapon.name}
-                    className="w-full h-40 object-cover rounded-md mb-4"
-                  />
-                  <h3 className="font-bold">{weapon.name}</h3>
-                  <p className="text-sm text-gray-500">{weapon.description}</p>
-                </div>
-              ))
-            )}
+            {/* Inventory Card */}
+            <div className="bg-white shadow-md rounded-lg p-4">
+              <img
+                src="/path-to-item1.jpg"
+                alt="Item"
+                className="w-full h-40 object-cover rounded-md mb-4"
+              />
+              <p className="text-sm text-gray-500 mb-2">Замовлення в дорозі</p>
+              <p className="text-sm text-gray-500 mb-2">
+                Доставка приблизно через: 1 день 20 год
+              </p>
+              <h3 className="font-bold">FGM-148 Javelin</h3>
+              <p className="text-sm text-gray-500">Доступно: 5</p>
+            </div>
+
+            {/* Repeat Inventory Card */}
+            <div className="bg-white shadow-md rounded-lg p-4">
+              <img
+                src="/path-to-item2.jpg"
+                alt="Item"
+                className="w-full h-40 object-cover rounded-md mb-4"
+              />
+              <p className="text-sm text-gray-500 mb-2">Немає в наявності</p>
+              <h3 className="font-bold">DJI Mavic Pro</h3>
+              <p className="text-sm text-gray-500">Доступно: 0</p>
+            </div>
+
+            {/* Add more cards as needed */}
           </div>
         </main>
       </div>
@@ -138,4 +127,4 @@ const StoragePage = () => {
   );
 };
 
-export default StoragePage;
+export default Sclad;
