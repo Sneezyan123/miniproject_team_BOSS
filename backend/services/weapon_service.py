@@ -28,3 +28,7 @@ async def delete_weapon(weapon_id: int, db: AsyncSession):
     await db.execute(query)
     await db.commit()
     return True
+
+async def get_weapons_by_user_id(user_id: int, db: AsyncSession):
+    result = await db.execute(select(Weapon).where(Weapon.owner_id == user_id))
+    return result.scalars().all()

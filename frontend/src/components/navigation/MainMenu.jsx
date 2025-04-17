@@ -16,6 +16,7 @@ const MainMenu = () => {
         
         <div className="nav-links">
           <Link to="/storage">Склад</Link>
+          <Link to="/inventory">Інвентар</Link>
           <Link to="/support">Технічна підтримка</Link>
         </div>
         

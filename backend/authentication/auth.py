@@ -19,8 +19,8 @@ ACCESS_TOKEN_EXPIRE_MINUTES = settings.EXPIRES_IN
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 async def authenticate_user(email, password: str, db: db_dependency):
     user = await user_service.get_user_by_email(email, db)
-    # if not user or not verify_password(password, user.password):
-        # return False
+    if not user or not verify_password(password, user.password):
+        return False
     return user
 
 def create_access_token(data: dict):

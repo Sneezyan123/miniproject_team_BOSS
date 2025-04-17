@@ -7,6 +7,7 @@ import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import PrivateRoute from './routes/PrivateRoute';
 import StoragePage from './pages/StoragePage';
+import InventoryPage from './pages/InventoryPage';
 
 function App() {
   return (
@@ -24,6 +25,14 @@ function App() {
           } 
         />
         <Route path="storage" element={<StoragePage/>}/>
+        <Route 
+          path="inventory" 
+          element={
+            <PrivateRoute>
+              <InventoryPage />
+            </PrivateRoute>
+          } 
+        />
       </Route>
     </Routes>
   );

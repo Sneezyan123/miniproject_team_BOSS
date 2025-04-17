@@ -37,3 +37,8 @@ async def delete_weapon(weapon_id: int, db: AsyncSession = Depends(get_db)):
     if not await weapon_service.delete_weapon(weapon_id, db):
         raise HTTPException(status_code=404, detail="Weapon not found")
     return {"message": "Weapon deleted successfully"}
+
+@router.get("/weapons_by_id/{user_id}")
+async def get_user_weapons(user_id: int, db: AsyncSession = Depends(get_db)):
+    weapons = await weapon_service.get_weapons_by_user_id(user_id, db)
+    return weapons
