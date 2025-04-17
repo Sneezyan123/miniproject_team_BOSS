@@ -1,7 +1,7 @@
 import uvicorn
 from fastapi import FastAPI
 from database.database import engine, Base, async_session_maker
-from routers import user_router, equipment_router
+from routers import user_router, equipment_router, request_router
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from models.role import Role, RoleEnum
@@ -42,6 +42,7 @@ app.add_middleware(
 )
 app.include_router(user_router.router, prefix="/user")
 app.include_router(equipment_router.router, prefix="/equipment")
+app.include_router(request_router.router, prefix="/requests")
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host = "localhost", port = 8000, reload=True, workers=1)

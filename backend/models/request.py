@@ -1,0 +1,24 @@
+from sqlalchemy import Column, Integer, String, ForeignKey, Enum, DateTime
+from sqlalchemy.orm import relationship
+from database.database import Base
+from enum import Enum as PyEnum
+from datetime import datetime
+
+class RequestStatus(PyEnum):
+    pending = "pending"
+    approved = "approved"
+    rejected = "rejected"
+
+class EquipmentRequest(Base):
+    __tablename__ = "equipment_requests"
+    
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    equipment_name = Column(String, nullable=False)
+    quantity = Column(Integer, nullable=False)
+    description = Column(String)
+    status = Column(Enum(RequestStatus), default=RequestStatus.pending)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    user_id = Column(Integer, ForeignKey("users.id"))
+    user = relationship("User", backref="equipment_requests")

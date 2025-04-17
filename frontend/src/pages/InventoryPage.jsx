@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import inventoryService from '../services/inventoryService';
+import { Link } from 'react-router-dom';
 import "./page.css";
+
 const InventoryPage = () => {
   const [inventory, setInventory] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -36,11 +38,19 @@ const InventoryPage = () => {
     <div className="inv container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Інвентар</h1>
-        {user?.role === 'admin' && (
-          <button className="bg-green-600 text-white px-4 py-2 rounded-lg">
-            Додати предмет
-          </button>
-        )}
+        <div className="flex gap-4">
+          {user?.role === 'admin' && (
+            <button className="bg-green-600 text-white px-4 py-2 rounded-lg">
+              Додати предмет
+            </button>
+          )}
+          <Link 
+            to="/requests/new" 
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg"
+          >
+            Запит на спорядження
+          </Link>
+        </div>
       </div>
 
       <div className="grid md:grid-cols-4 gap-4">
