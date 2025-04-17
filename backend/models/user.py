@@ -9,4 +9,4 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     role_id = Column(Integer, ForeignKey('roles.id'))
     role = relationship("Role", back_populates="user", uselist=False)
-    weapons = relationship("Weapon", back_populates="owner")
+    equipment = relationship("Equipment", back_populates="owner")

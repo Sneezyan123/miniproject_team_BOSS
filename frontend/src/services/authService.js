@@ -4,8 +4,10 @@ const API_URL = "http://localhost:8000/user";  // Changed from 0.0.0.0 to localh
 
 export const register = async (userData) => {
   try {
-    console.log(userData)
-    const response = await axios.post(`http://localhost:8000/user/register`, userData);  // Changed URL
+    const response = await axios.post(`${API_URL}/register`, userData);
+    if (response.data.token) {
+      localStorage.setItem('token', response.data.token);
+    }
     return response.data;
   } catch (error) {
     throw error.response ? error.response.data : new Error('Помилка реєстрації');

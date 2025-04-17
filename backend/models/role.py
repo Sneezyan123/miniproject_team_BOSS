@@ -2,9 +2,11 @@ from database.database import Base
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 from enum import Enum
+
 class RoleEnum(str, Enum):
     user = "user"
     admin = "admin"
+    logistician = "logistician"
 
 class Role(Base):
     __tablename__ = "roles"

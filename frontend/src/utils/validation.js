@@ -43,6 +43,10 @@ export const validateEmail = (email) => {
     if (formData.militaryUnit && !validateMilitaryUnit(formData.militaryUnit)) {
       errors.militaryUnit = 'Некоректний формат військової частини';
     }
+
+    if (!formData.role || !['user', 'logistician'].includes(formData.role)) {
+      errors.role = 'Оберіть роль';
+    }
   
     return {
       isValid: Object.keys(errors).length === 0,

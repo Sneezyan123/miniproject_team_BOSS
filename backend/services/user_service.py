@@ -11,7 +11,15 @@ async def create_user(user: user_dto.User, db: AsyncSession = Depends(get_db)):
     isUser = await get_user_by_email(user.email, db)
     if isUser:
         return None
-    role_id = 2 if user.role == RoleEnum.user else 1
+    
+    # Map role names to role IDs
+    role_map = {
+        RoleEnum.user: 2,
+        RoleEnum.admin: 1,
+        RoleEnum.logistician: 3
+    }
+    role_id = role_map.get(user.role, 2)  # Default to user role if invalid
+
     new_user = User(email=user.email,
                     password=hash_password(user.password),
                     role_id=role_id)

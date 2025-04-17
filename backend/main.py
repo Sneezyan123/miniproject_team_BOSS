@@ -1,17 +1,35 @@
 import uvicorn
 from fastapi import FastAPI
-from database.database import engine, Base
-from routers import user_router, weapon_router
+from database.database import engine, Base, async_session_maker
+from routers import user_router, equipment_router
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
+from models.role import Role, RoleEnum
+from sqlalchemy import select
 
-app = FastAPI()
+async def initialize_roles():
+    async with async_session_maker() as session:
+        # Check if roles already exist
+        result = await session.execute(select(Role))
+        existing_roles = result.scalars().all()
+        
+        if not existing_roles:
+            # Create default roles
+            roles = [
+                Role(id=1, name=RoleEnum.admin),
+                Role(id=2, name=RoleEnum.user),
+                Role(id=3, name=RoleEnum.logistician)
+            ]
+            session.add_all(roles)
+            await session.commit()
+            print("Default roles created")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
         # await conn.run_sync(Base.metadata.drop_all) #reset database
         await conn.run_sync(Base.metadata.create_all)
+        await initialize_roles()
     yield
 
 app = FastAPI(lifespan=lifespan)
@@ -23,6 +41,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(user_router.router, prefix="/user")
-app.include_router(weapon_router.router, prefix="/weapons")
+app.include_router(equipment_router.router, prefix="/equipment")
+
 if __name__ == "__main__":
     uvicorn.run("main:app", host = "localhost", port = 8000, reload=True, workers=1)
