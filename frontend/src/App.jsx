@@ -10,6 +10,7 @@ import StoragePage from './pages/StoragePage';
 import InventoryPage from './pages/InventoryPage';
 import RequestsPage from './pages/RequestsPage';
 import RequestFormPage from './pages/RequestFormPage';
+import EquipmentDetailPage from './pages/EquipmentDetailPage';
 
 function App() {
   return (
@@ -20,13 +21,14 @@ function App() {
         <Route path="register" element={<RegisterPage />} />
         <Route 
           path="dashboard" 
-          element={
+          element={ 
             <PrivateRoute>
               <DashboardPage />
             </PrivateRoute>
           } 
         />
         <Route path="storage" element={<StoragePage/>}/>
+        <Route path="storage/:id" element={<EquipmentDetailPage />} />
         <Route 
           path="inventory" 
           element={

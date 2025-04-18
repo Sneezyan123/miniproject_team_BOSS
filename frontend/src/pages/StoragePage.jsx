@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
 import equipmentService from "../services/equipmentService";
 import { useAuth } from '../context/AuthContext';
 import CreateEquipmentModal from "../components/equipment/CreateEquipmentModal";
 
 const StoragePage = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [weapons, setWeapons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -45,23 +47,6 @@ const StoragePage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="flex justify-between items-center p-4 bg-white shadow-md">
-        <div className="flex items-center space-x-4">
-          <img src="/path-to-logo.svg" alt="Logo" className="h-8" />
-          <h1 className="text-xl font-bold text-green-800">App name</h1>
-        </div>
-        <div className="flex items-center space-x-4">
-          <img
-            src="/path-to-profile-image.jpg"
-            alt="User"
-            className="w-10 h-10 rounded-full object-cover"
-          />
-          <button className="bg-green-700 text-white px-4 py-2 rounded-md hover:bg-green-800">
-            Вийти
-          </button>
-        </div>
-      </header>
 
       {/* Main Content */}
       <div className="p-6 flex min-h-[calc(100vh-4rem)]">
@@ -146,7 +131,11 @@ const StoragePage = () => {
               <p>No equipment found</p>
             ) : (
               filteredWeapons.map((weapon) => (
-                <div key={weapon.id} className="bg-white shadow-md rounded-lg p-4">
+                <div 
+                  key={weapon.id} 
+                  className="bg-white shadow-md rounded-lg p-4 cursor-pointer hover:shadow-lg transition-shadow"
+                  onClick={() => navigate(`/storage/${weapon.id}`)}
+                >
                   <img
                     src={weapon.img_url || "/default-weapon.jpg"}
                     alt={weapon.name}
