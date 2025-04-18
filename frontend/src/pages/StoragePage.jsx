@@ -1,10 +1,19 @@
 import React, { useState, useEffect } from "react";
 import equipmentService from "../services/equipmentService";
+import { useAuth } from '../context/AuthContext';
+import CreateEquipmentModal from "../components/equipment/CreateEquipmentModal";
 
 const StoragePage = () => {
+  const { user } = useAuth();
   const [weapons, setWeapons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [filters, setFilters] = useState({
+    weapon: false,
+    humanitarian: false,
+    vehicle: false
+  });
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     fetchWeapons();
@@ -20,6 +29,19 @@ const StoragePage = () => {
       setLoading(false);
     }
   };
+
+  const handleFilterChange = (purpose) => {
+    setFilters(prev => ({
+      ...prev,
+      [purpose]: !prev[purpose]
+    }));
+  };
+
+  const filteredWeapons = weapons.filter(weapon => {
+    const activeFilters = Object.entries(filters).filter(([_, isActive]) => isActive);
+    if (activeFilters.length === 0) return true;
+    return filters[weapon.purpose];
+  });
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -47,26 +69,34 @@ const StoragePage = () => {
         <aside className="w-1/4 bg-white shadow-md rounded-lg p-4 mr-6">
           <h2 className="text-lg font-bold mb-4">Фільтри</h2>
           <div className="mb-4">
-            <h3 className="font-bold">Провізія</h3>
-            <div className="flex items-center space-x-2">
-              <span className="bg-gray-200 px-2 py-1 rounded-md">БК</span>
-              <span className="bg-gray-200 px-2 py-1 rounded-md">Зброя</span>
-            </div>
-          </div>
-          <div className="mb-4">
-            <h3 className="font-bold">Категорії</h3>
+            <h3 className="font-bold mb-2">Категорії</h3>
             <div className="space-y-2">
               <label className="flex items-center space-x-2">
-                <input type="checkbox" className="form-checkbox" />
-                <span>Label Description</span>
+                <input
+                  type="checkbox"
+                  checked={filters.weapon}
+                  onChange={() => handleFilterChange('weapon')}
+                  className="form-checkbox text-green-600"
+                />
+                <span>Зброя</span>
               </label>
               <label className="flex items-center space-x-2">
-                <input type="checkbox" className="form-checkbox" />
-                <span>Label Description</span>
+                <input
+                  type="checkbox"
+                  checked={filters.humanitarian}
+                  onChange={() => handleFilterChange('humanitarian')}
+                  className="form-checkbox text-green-600"
+                />
+                <span>Гуманітарне спорядження</span>
               </label>
               <label className="flex items-center space-x-2">
-                <input type="checkbox" className="form-checkbox" />
-                <span>Label Description</span>
+                <input
+                  type="checkbox"
+                  checked={filters.vehicle}
+                  onChange={() => handleFilterChange('vehicle')}
+                  className="form-checkbox text-green-600"
+                />
+                <span>Транспорт</span>
               </label>
             </div>
           </div>
@@ -90,9 +120,14 @@ const StoragePage = () => {
               className="border border-gray-300 rounded-md px-4 py-2 w-1/2"
             />
             <div className="flex space-x-2">
-              <button className="bg-green-700 text-white px-4 py-2 rounded-md hover:bg-green-800">
-                Нове
-              </button>
+              {user?.role?.name === 'logistician' && (
+                <button 
+                  onClick={() => setIsModalOpen(true)}
+                  className="bg-green-700 text-white px-4 py-2 rounded-md hover:bg-green-800"
+                >
+                  Додати спорядження
+                </button>
+              )}
               <button className="bg-gray-200 px-4 py-2 rounded-md">
                 Зброя NATO
               </button>
@@ -107,10 +142,10 @@ const StoragePage = () => {
               <p>Loading weapons...</p>
             ) : error ? (
               <p className="">{error}</p>
-            ) : weapons.length === 0 ? (
+            ) : filteredWeapons.length === 0 ? (
               <p>No equipment found</p>
             ) : (
-              weapons.map((weapon) => (
+              filteredWeapons.map((weapon) => (
                 <div key={weapon.id} className="bg-white shadow-md rounded-lg p-4">
                   <img
                     src={weapon.img_url || "/default-weapon.jpg"}
@@ -130,6 +165,12 @@ const StoragePage = () => {
           </div>
         </main>
       </div>
+
+      <CreateEquipmentModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSuccess={fetchWeapons}
+      />
 
       {/* Footer */}
       <footer className="bg-green-800 text-white p-4 text-center">

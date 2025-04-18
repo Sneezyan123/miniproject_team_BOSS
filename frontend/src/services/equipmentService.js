@@ -2,7 +2,7 @@ import apiService from './apiService';
 
 const getFreeEquipment = async () => {
   try {
-    const response = await apiService.get('/equipment/free');
+    const response = await apiService.get('/equipment');
     return response || [];
   } catch (error) {
     throw new Error("there is no available equipment.");
