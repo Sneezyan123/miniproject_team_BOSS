@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getAllWeapons } from "../services/weaponService";
+import equipmentService from "../services/equipmentService";
 
 const StoragePage = () => {
   const [weapons, setWeapons] = useState([]);
@@ -12,12 +12,11 @@ const StoragePage = () => {
 
   const fetchWeapons = async () => {
     try {
-      const data = await getAllWeapons();
-      console.log(data);
+      const data = await equipmentService.getFreeEquipment();
       setWeapons(data);
       setLoading(false);
     } catch (err) {
-      setError("Failed to fetch weapons");
+      setError("No equipment found");
       setLoading(false);
     }
   };
@@ -43,7 +42,7 @@ const StoragePage = () => {
       </header>
 
       {/* Main Content */}
-      <div className="p-6 flex">
+      <div className="p-6 flex min-h-[calc(100vh-4rem)]">
         {/* Filters Section */}
         <aside className="w-1/4 bg-white shadow-md rounded-lg p-4 mr-6">
           <h2 className="text-lg font-bold mb-4">Фільтри</h2>
@@ -107,7 +106,9 @@ const StoragePage = () => {
             {loading ? (
               <p>Loading weapons...</p>
             ) : error ? (
-              <p className="text-red-500">{error}</p>
+              <p className="">{error}</p>
+            ) : weapons.length === 0 ? (
+              <p>No equipment found</p>
             ) : (
               weapons.map((weapon) => (
                 <div key={weapon.id} className="bg-white shadow-md rounded-lg p-4">
@@ -115,9 +116,14 @@ const StoragePage = () => {
                     src={weapon.img_url || "/default-weapon.jpg"}
                     alt={weapon.name}
                     className="w-full h-40 object-cover rounded-md mb-4"
+                    onError={(e) => {
+                      e.target.src = "/default-weapon.jpg";
+                      e.target.onerror = null;
+                    }}
                   />
                   <h3 className="font-bold">{weapon.name}</h3>
                   <p className="text-sm text-gray-500">{weapon.description}</p>
+                  <p className="text-sm text-gray-500">Purpose: {weapon.purpose}</p>
                 </div>
               ))
             )}

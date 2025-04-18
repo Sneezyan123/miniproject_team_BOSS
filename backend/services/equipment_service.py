@@ -27,3 +27,7 @@ async def delete_equipment(equipment_id: int, db: AsyncSession):
 async def get_equipment_by_user_id(user_id: int, db: AsyncSession):
     result = await db.execute(select(Equipment).where(Equipment.owner_id == user_id))
     return result.scalars().all()
+
+async def get_free_equipment(db: AsyncSession):
+    result = await db.execute(select(Equipment).where(Equipment.owner_id == None))
+    return result.scalars().all()

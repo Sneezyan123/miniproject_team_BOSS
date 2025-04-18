@@ -34,3 +34,7 @@ async def delete_equipment(equipment_id: int, db: AsyncSession = Depends(get_db)
 async def get_user_equipment(user_id: int, db: AsyncSession = Depends(get_db)):
     equipment = await equipment_service.get_equipment_by_user_id(user_id, db)
     return equipment
+
+@router.get("/free")
+async def get_free_equipment(db: AsyncSession = Depends(get_db)):
+    return await equipment_service.get_free_equipment(db)

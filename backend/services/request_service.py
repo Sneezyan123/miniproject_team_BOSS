@@ -1,12 +1,14 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from models.request import EquipmentRequest, RequestStatus
+from models.equipment import Equipment
 from dtos.request_dto import RequestCreate
+from sqlalchemy.orm import joinedload
 
 async def create_request(request: RequestCreate, user_id: int, db: AsyncSession):
     db_request = EquipmentRequest(
         user_id=user_id,
-        equipment_name=request.equipment_name,
+        equipment_id=request.equipment_id,
         quantity=request.quantity,
         description=request.description
     )
@@ -17,7 +19,9 @@ async def create_request(request: RequestCreate, user_id: int, db: AsyncSession)
 
 async def get_user_requests(user_id: int, db: AsyncSession):
     result = await db.execute(
-        select(EquipmentRequest).where(EquipmentRequest.user_id == user_id)
+        select(EquipmentRequest)
+        .options(joinedload(EquipmentRequest.equipment))
+        .where(EquipmentRequest.user_id == user_id)
     )
     return result.scalars().all()
 
