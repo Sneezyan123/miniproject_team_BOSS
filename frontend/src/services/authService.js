@@ -7,6 +7,7 @@ export const register = async (userData) => {
     const response = await axios.post(`${API_URL}/register`, userData);
     if (response.data.token) {
       localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
     }
     return response.data;
   } catch (error) {
@@ -17,11 +18,11 @@ export const register = async (userData) => {
 export const login = async (credentials) => {
   try {
     const response = await axios.post(`${API_URL}/login`, credentials);
-    
     if (response.data.token) {
       localStorage.setItem('token', response.data.token);
+      // Store only the user data consistently
+      localStorage.setItem('user', JSON.stringify(response.data.user));
     }
-    
     return response.data;
   } catch (error) {
     throw error.response ? error.response.data : new Error('Помилка входу');
@@ -38,7 +39,8 @@ export const getCurrentUser = () => {
   
   if (userJson) {
     try {
-      return JSON.parse(userJson);
+      const userData = JSON.parse(userJson);
+      return userData.user || userData;
     } catch (error) {
       console.error('Помилка парсингу даних користувача', error);
       return null;

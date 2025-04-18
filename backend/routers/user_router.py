@@ -23,7 +23,15 @@ async def create(data: user_dto.User, db: db_dependency):
             headers={"WWW-Authenticate": "Bearer"},
         )
     token = get_access_token(user)
-    return token
+    return {"token": token, 
+            "user":
+            {
+                "id": user.id,
+                "email": user.email,
+                "role": user.role_id
+            }
+    }
+
 
 
 @router.post("/login")
@@ -36,7 +44,14 @@ async def login(user_dto: user_dto.User, db: db_dependency):
             headers={"WWW-Authenticate": "Bearer"},
         )
     token =get_access_token(user)
-    return token
+    return {"token": token, 
+            "user":
+            {
+                "id": user.id,
+                "email": user.email,
+                "role": user.role_id
+            }
+    }
 
 @router.post("/protected")
 async def protected(user: User = Depends(get_current_user)):

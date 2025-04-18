@@ -5,7 +5,8 @@ import { useAuth } from '../context/AuthContext';
 import CreateEquipmentModal from "../components/equipment/CreateEquipmentModal";
 
 const StoragePage = () => {
-  const { user } = useAuth();
+  const { user: authUser } = useAuth();
+  console.log(authUser);
   const navigate = useNavigate();
   const [weapons, setWeapons] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -105,10 +106,10 @@ const StoragePage = () => {
               className="border border-gray-300 rounded-md px-4 py-2 w-1/2"
             />
             <div className="flex space-x-2">
-              {user?.role?.name === 'logistician' && (
+              {authUser?.role === 3 && (
                 <button 
                   onClick={() => setIsModalOpen(true)}
-                  className="bg-green-700 text-white px-4 py-2 rounded-md hover:bg-green-800"
+                  className="bg-green-700 text-white px-4 py-2 rounded-md hover:bg-green-800 transition-colors"
                 >
                   Додати спорядження
                 </button>
@@ -152,14 +153,14 @@ const StoragePage = () => {
               ))
             )}
           </div>
+
+          <CreateEquipmentModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            onSuccess={fetchWeapons}
+          />
         </main>
       </div>
-
-      <CreateEquipmentModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSuccess={fetchWeapons}
-      />
 
       {/* Footer */}
       <footer className="bg-green-800 text-white p-4 text-center">

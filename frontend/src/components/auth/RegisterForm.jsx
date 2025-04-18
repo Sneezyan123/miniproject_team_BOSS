@@ -33,6 +33,7 @@ const RegisterForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      console.log(userData)
       const response = await register(userData);
       if (response.token) {
         localStorage.setItem('token', response.token);

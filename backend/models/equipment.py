@@ -15,6 +15,7 @@ class Equipment(Base):
     name = Column(String, unique=True, index=True)
     img_url = Column(String)
     description = Column(String)
+    detailed_description = Column(String)
     purpose = Column(Enum(PurposeEnum), nullable=False)
     owner_id = Column(Integer, ForeignKey("users.id"))
     owner = relationship("User", back_populates="equipment")

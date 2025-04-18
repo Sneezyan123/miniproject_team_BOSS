@@ -13,7 +13,9 @@ export const AuthProvider = ({ children }) => {
   const [authenticated, setAuthenticated] = useState(isAuthenticated());
 
   const login = (userData) => {
-    setUser(userData);
+    // If we receive the combined token+user object, extract just the user
+    const userToStore = userData.user || userData;
+    setUser(userToStore);
     setAuthenticated(true);
   };
 
