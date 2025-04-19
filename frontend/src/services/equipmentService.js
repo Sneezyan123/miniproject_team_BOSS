@@ -29,4 +29,16 @@ const getAllEquipment = async () => {
   return apiService.get(`/equipment/free`);
 }
 
-export default {getAllEquipment, getEquipmentById, createEquipment, updateEquipment, deleteEquipment, getFreeEquipment};
+const generateAIDescription = async (equipmentData) => {
+  return apiService.post('/equipment/generate-description', equipmentData);
+}
+
+export default {
+  getAllEquipment,
+  getEquipmentById,
+  createEquipment,
+  updateEquipment,
+  deleteEquipment,
+  getFreeEquipment,
+  generateAIDescription
+};

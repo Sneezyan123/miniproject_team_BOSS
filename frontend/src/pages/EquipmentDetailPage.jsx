@@ -46,10 +46,11 @@ const EquipmentDetailPage = () => {
       </button>
 
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-        <div className="md:flex">
-          <div className="md:flex-shrink-0">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
+          {/* Left Column */}
+          <div>
             <img
-              className="h-96 w-full object-cover md:w-96"
+              className="w-full h-64 object-cover rounded-lg mb-4"
               src={equipment.img_url || '/default-equipment.jpg'}
               alt={equipment.name}
               onError={(e) => {
@@ -57,24 +58,38 @@ const EquipmentDetailPage = () => {
                 e.target.onerror = null;
               }}
             />
-          </div>
-          <div className="p-8">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">{equipment.name}</h1>
-            <div className="mb-4">
-              <span className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700">
+            <h1 className="text-xl font-bold text-gray-900 mb-2">{equipment.name}</h1>
+            <div className="mb-2">
+              <span className="inline-block bg-gray-200 rounded-full px-2 py-1 text-xs font-semibold text-gray-700">
                 {equipment.purpose}
               </span>
             </div>
-            <p className="text-gray-600 mb-6">{equipment.description}</p>
+            <p className="text-gray-600 mb-4 text-sm">{equipment.description}</p>
+            <div className="mb-4">
+              <span className="font-bold text-sm">Кількість:</span>
+              <span className="ml-2 text-sm">{equipment.quantity}</span>
+            </div>
 
             {user?.role === 'user' && (
               <button 
                 onClick={() => navigate(`/requests/new?equipmentId=${equipment.id}`)}
-                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                className="bg-green-600 text-white w-full px-3 py-1.5 rounded text-sm hover:bg-green-700"
               >
                 Запросити спорядження
               </button>
             )}
+          </div>
+
+          {/* Right Column - Detailed Description */}
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <h2 className="text-lg font-bold text-gray-900 mb-3">Детальна інформація</h2>
+            <div className="prose max-w-none">
+              {equipment.detailed_description ? (
+                <p className="text-gray-700 text-sm whitespace-pre-line">{equipment.detailed_description}</p>
+              ) : (
+                <p className="text-gray-500 italic text-sm">Детальний опис відсутній</p>
+              )}
+            </div>
           </div>
         </div>
       </div>

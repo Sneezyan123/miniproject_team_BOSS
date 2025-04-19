@@ -21,3 +21,16 @@
     background-color: white;
     border-radius: 15px;
 }
+
+.under{
+    display: flex;
+    justify-content: space-between;
+}
+.q{
+    margin-top: 20px;
+    font-size: 40px;
+    text-decoration: none;
+}
+.maineq{
+    width:500px;
+}

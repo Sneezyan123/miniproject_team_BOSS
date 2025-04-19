@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from database.database import get_db
 from services import equipment_service
-from dtos.equipment_dto import EquipmentBase
+from dtos.equipment_dto import EquipmentBase, EquipmentAIRequest
 from models.user import User
 from authentication.auth import get_current_user
 
@@ -38,3 +38,16 @@ async def get_user_equipment(user_id: int, db: AsyncSession = Depends(get_db)):
 @router.get("/free")
 async def get_free_equipment(db: AsyncSession = Depends(get_db)):
     return await equipment_service.get_free_equipment(db)
+
+@router.post("/generate-description")
+async def generate_description(
+    request: EquipmentAIRequest,
+):
+    try:
+        description = await equipment_service.generate_ai_description(
+            request.name,
+            request.purpose
+        )
+        return {"detailed_description": description}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

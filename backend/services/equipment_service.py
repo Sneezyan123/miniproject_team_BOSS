@@ -3,6 +3,11 @@ from sqlalchemy import select, update, delete
 from models.equipment import Equipment
 from dtos.equipment_dto import EquipmentBase
 
+from openai import OpenAI
+import openai
+import requests
+from config import settings
+
 async def create_equipment(equipment: EquipmentBase, db: AsyncSession):
     db_equipment = Equipment(**equipment.model_dump())
     db.add(db_equipment)
@@ -31,3 +36,25 @@ async def get_equipment_by_user_id(user_id: int, db: AsyncSession):
 async def get_free_equipment(db: AsyncSession):
     result = await db.execute(select(Equipment).where(Equipment.owner_id == None))
     return result.scalars().all()
+
+async def generate_ai_description(name: str, purpose: str) -> str:
+    try:
+        api_key = settings.FACE_API_KEY
+        api_url = settings.FACE_API_URL
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+        payload={
+            "messages": [
+                {
+                    "role": "user",
+                    "content": f"Generate a description for military equipment with the following details:\nName: {name}\nPurpose: {purpose} in Ukrainian language. First of all, write small general information then characteristics, then write about the purpose of the equipment."
+                }
+            ],
+            "model": "deepseek/deepseek-v3-0324",
+        }
+        response = requests.post(api_url, headers=headers, json=payload)
+        return response.json().get("choices")[0].get("message").get("content")
+    except Exception as e:
+        raise Exception(f"Failed to generate AI description: {str(e)}")

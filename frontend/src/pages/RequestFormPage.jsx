@@ -22,7 +22,7 @@ const RequestFormPage = () => {
   useEffect(() => {
     const fetchEquipment = async () => {
       try {
-        const data = await equipmentService.getAllEquipment();
+        const data = await equipmentService.getFreeEquipment();
         setEquipment(data);
       } catch (error) {
         console.error('Error fetching equipment:', error);

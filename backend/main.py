@@ -22,7 +22,6 @@ async def initialize_roles():
             ]
             session.add_all(roles)
             await session.commit()
-            print("Default roles created")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

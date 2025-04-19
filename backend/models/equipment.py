@@ -17,5 +17,6 @@ class Equipment(Base):
     description = Column(String)
     detailed_description = Column(String)
     purpose = Column(Enum(PurposeEnum), nullable=False)
+    quantity = Column(Integer, default=0)
     owner_id = Column(Integer, ForeignKey("users.id"))
     owner = relationship("User", back_populates="equipment")

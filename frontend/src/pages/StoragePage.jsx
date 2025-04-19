@@ -146,9 +146,14 @@ const StoragePage = () => {
                       e.target.onerror = null;
                     }}
                   />
-                  <h3 className="font-bold">{weapon.name}</h3>
-                  <p className="text-sm text-gray-500">{weapon.description}</p>
-                  <p className="text-sm text-gray-500">Purpose: {weapon.purpose}</p>
+                  <div className="under">
+                  <p className="text-sm text-gray-500 q">{weapon.quantity}</p>
+                  <div className="under-text">
+                    <h3 className="font-bold">{weapon.name}</h3>
+                    <p className="text-sm text-gray-500">{weapon.description}</p>
+                    <p className="text-sm text-gray-500">Purpose: {weapon.purpose}</p>
+                  </div>
+                  </div>
                 </div>
               ))
             )}
@@ -161,16 +166,6 @@ const StoragePage = () => {
           />
         </main>
       </div>
-
-      {/* Footer */}
-      <footer className="bg-green-800 text-white p-4 text-center">
-        <div className="flex justify-between">
-          <p>Склад</p>
-          <a href="/" className="hover:underline">
-            На головну
-          </a>
-        </div>
-      </footer>
     </div>
   );
 };
