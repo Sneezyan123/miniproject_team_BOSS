@@ -49,6 +49,14 @@ const RequestFormPage = () => {
   }, []);
 
   const handleAddItem = (item) => {
+    const existingItem = selectedItems.find(
+      selected => selected.equipment_id === item.id
+    );
+
+    if (existingItem) {
+      return;
+    }
+
     setSelectedItems(prev => [...prev, {
       equipment_id: item.id,
       equipment_name: item.name,
@@ -61,9 +69,20 @@ const RequestFormPage = () => {
   };
 
   const handleItemChange = (index, field, value) => {
-    setSelectedItems(prev => prev.map((item, i) => 
-      i === index ? { ...item, [field]: value } : item
-    ));
+    setSelectedItems(prev => prev.map((item, i) => {
+      if (i !== index) return item;
+      
+      // Знаходимо максимальну доступну кількість
+      const equipmentItem = equipment.find(e => e.id === item.equipment_id);
+      const maxQuantity = equipmentItem ? equipmentItem.quantity : 1;
+      
+      // Якщо введене значення більше за максимальне, встановлюємо максимальне
+      if (field === 'quantity' && value > maxQuantity) {
+        value = maxQuantity;
+      }
+      
+      return { ...item, [field]: value };
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -100,17 +119,15 @@ const RequestFormPage = () => {
               <div 
                 key={item.id}
                 onClick={() => handleAddItem(item)}
-                className="p-4 border rounded-lg cursor-pointer"
+                className="p-4 border rounded-lg cursor-pointer hover:bg-gray-50"
               >
                 <div className="flex items-center gap-4">
-                  <img 
-                    src={item.image_url || '/default-item.png'}
-                    alt={item.name}
-                    className="w-16 h-16 object-cover rounded"
-                  />
-                  <div>
+                  <div className="flex-grow">
                     <h3 className="font-semibold">{item.name}</h3>
                     <p className="text-sm text-gray-600">{item.description}</p>
+                    <p className="text-sm font-medium text-green-700">
+                      Доступна кількість: {item.quantity}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -145,11 +162,15 @@ const RequestFormPage = () => {
                     <input
                       type="number"
                       min="1"
+                      max={equipment.find(e => e.id === item.equipment_id)?.quantity || 1}
                       value={item.quantity}
                       onChange={(e) => handleItemChange(index, 'quantity', Number(e.target.value))}
                       className="w-full p-2 border rounded"
                       required
                     />
+                    <p className="text-sm text-gray-500 mt-1">
+                      Максимально доступно: {equipment.find(e => e.id === item.equipment_id)?.quantity || 0}
+                    </p>
                   </div>
                 </div>
                 <button

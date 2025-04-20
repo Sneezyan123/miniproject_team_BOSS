@@ -79,3 +79,14 @@ async def update_request_status(request_id: int, status: RequestStatus, db: Asyn
         await db.commit()
         await db.refresh(request)
     return request
+
+async def delete_request(request_id: int, db: AsyncSession):
+    result = await db.execute(
+        select(EquipmentRequest).where(EquipmentRequest.id == request_id)
+    )
+    request = result.scalar_one_or_none()
+    if request:
+        await db.delete(request)
+        await db.commit()
+        return True
+    return False

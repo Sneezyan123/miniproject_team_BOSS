@@ -26,7 +26,7 @@ const MainMenu = () => {
           <div className="flex items-center flex-1">
             <Link to="/" className="flex items-center gap-4">
               <img src={tridentLogo} alt="Тризуб" className="h-12 w-auto" />
-              <span className="text-xl font-semibold text-gray-900">Military Equipment</span>
+              <span className="text-xl font-semibold text-gray-900">Project Logistics</span>
             </Link>
           </div>
 

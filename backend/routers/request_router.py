@@ -78,3 +78,20 @@ async def get_request_by_id(
         raise HTTPException(status_code=403, detail="Not authorized to view this request")
         
     return request
+
+@router.delete("/{request_id}")
+async def delete_request(
+    request_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    request = await request_service.get_request_by_id(request_id, db)
+    if not request:
+        raise HTTPException(status_code=404, detail="Request not found")
+    
+    if request.user_id != current_user.id and current_user.role_id != 3:
+        raise HTTPException(status_code=403, detail="Not authorized to delete this request")
+        
+    if await request_service.delete_request(request_id, db):
+        return {"message": "Request deleted successfully"}
+    raise HTTPException(status_code=404, detail="Request not found")

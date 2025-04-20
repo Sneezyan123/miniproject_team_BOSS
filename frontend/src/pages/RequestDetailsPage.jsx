@@ -49,6 +49,17 @@ const RequestDetailsPage = () => {
     }
   };
 
+  const handleDelete = async () => {
+    if (window.confirm('Ви впевнені, що хочете видалити цей запит?')) {
+      try {
+        await requestService.deleteRequest(id);
+        navigate('/requests');
+      } catch (error) {
+        console.error('Error deleting request:', error);
+      }
+    }
+  };
+
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8 flex justify-center">
@@ -95,6 +106,14 @@ const RequestDetailsPage = () => {
               >
                 Назад
               </button>
+              {(isLogistician || request.user_id === user.id) && 
+                <button
+                  onClick={handleDelete}
+                  className="px-4 py-2 text-white bg-red-600 rounded-md hover:bg-red-700"
+                >
+                  Видалити запит
+                </button>
+              }
               {isLogistician && request.items.some(item => item.status === 'pending') && (
                 <>
                   <button

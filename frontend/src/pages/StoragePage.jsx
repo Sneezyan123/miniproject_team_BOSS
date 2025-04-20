@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import CreateEquipmentModal from "../components/equipment/CreateEquipmentModal";
 
 const StoragePage = () => {
-  const { user: authUser } = useAuth();
+  const { isAuthenticated, user: authUser } = useAuth();
   const navigate = useNavigate();
   const [weapons, setWeapons] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -17,11 +17,15 @@ const StoragePage = () => {
   });
   const [quantityFilter, setQuantityFilter] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const isLogistician = authUser?.role === 3 || authUser?.role === "logistician";
+  const isLogistician = isAuthenticated && (authUser?.role === 3 || authUser?.role === "logistician");
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
     fetchWeapons();
-  }, []);
+  }, [isAuthenticated, navigate]);
 
   const fetchWeapons = async () => {
     try {

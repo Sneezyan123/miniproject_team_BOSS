@@ -27,6 +27,16 @@ const requestService = {
       }
       throw error;
     }
+  },
+
+  deleteRequest: async (requestId) => {
+    try {
+      await apiService.delete(`/requests/${requestId}`);
+      return true;
+    } catch (error) {
+      console.error('Error deleting request:', error);
+      throw error;
+    }
   }
 };
 
