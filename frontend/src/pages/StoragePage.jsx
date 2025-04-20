@@ -106,7 +106,7 @@ const StoragePage = () => {
               className="border border-gray-300 rounded-md px-4 py-2 w-1/2"
             />
             <div className="flex space-x-2">
-              {authUser?.role === 3 && (
+              {authUser?.role === "logistician" || authUser?.role === 3 && (
                 <button 
                   onClick={() => setIsModalOpen(true)}
                   className="bg-green-700 text-white px-4 py-2 rounded-md hover:bg-green-800 transition-colors"

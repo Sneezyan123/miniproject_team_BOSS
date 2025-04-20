@@ -1,35 +1,73 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from models.request import EquipmentRequest, RequestStatus
-from models.equipment import Equipment
-from dtos.request_dto import RequestCreate
 from sqlalchemy.orm import joinedload
+from models.request import EquipmentRequest, RequestStatus
+from models.request_item import RequestItem
+from dtos.request_dto import RequestCreate
 
 async def create_request(request: RequestCreate, user_id: int, db: AsyncSession):
-    db_request = EquipmentRequest(
-        user_id=user_id,
-        equipment_id=request.equipment_id,
-        quantity=request.quantity,
-        description=request.description
-    )
-    db.add(db_request)
-    await db.commit()
-    await db.refresh(db_request)
-    return db_request
+    try:
+        db_request = EquipmentRequest(
+            user_id=user_id,
+            description=request.description,
+            priority=request.priority
+        )
+        
+        for item in request.items:
+            request_item = RequestItem(
+                equipment_id=item.equipment_id,
+                quantity=item.quantity
+            )
+            db_request.items.append(request_item)
+        
+        db.add(db_request)
+        await db.commit()
+        
+        # Refresh the instance to load relationships
+        await db.refresh(db_request)
+        
+        # Explicitly load the relationships
+        for item in db_request.items:
+            await db.refresh(item)
+            await db.refresh(item.equipment)
+            
+        return db_request
+    except Exception as e:
+        await db.rollback()
+        raise e
 
 async def get_user_requests(user_id: int, db: AsyncSession):
-    result = await db.execute(
+    query = (
         select(EquipmentRequest)
-        .options(joinedload(EquipmentRequest.equipment))
-        .where(EquipmentRequest.user_id == user_id)
+        .options(
+            joinedload(EquipmentRequest.items).joinedload(RequestItem.equipment)
+        )
+        .filter(EquipmentRequest.user_id == user_id)
     )
-    return result.scalars().all()
+    result = await db.execute(query)
+    return result.unique().scalars().all()
 
 async def get_pending_requests(db: AsyncSession):
-    result = await db.execute(
-        select(EquipmentRequest).where(EquipmentRequest.status == RequestStatus.pending)
+    query = (
+        select(EquipmentRequest)
+        .options(
+            joinedload(EquipmentRequest.items).joinedload(RequestItem.equipment)
+        )
+        .join(RequestItem)
+        .filter(RequestItem.status == RequestStatus.pending)
+        .distinct()
     )
-    return result.scalars().all()
+    result = await db.execute(query)
+    return result.unique().scalars().all()
+
+async def get_request_by_id(request_id: int, db: AsyncSession):
+    query = (
+        select(EquipmentRequest)
+        .options(joinedload(EquipmentRequest.items).joinedload(RequestItem.equipment))
+        .filter(EquipmentRequest.id == request_id)
+    )
+    result = await db.execute(query)
+    return result.unique().scalar_one_or_none()
 
 async def update_request_status(request_id: int, status: RequestStatus, db: AsyncSession):
     result = await db.execute(

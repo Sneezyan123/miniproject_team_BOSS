@@ -2,19 +2,31 @@ import apiService from './apiService';
 
 const requestService = {
   createRequest: async (requestData) => {
-    return apiService.post('/requests', requestData);
+    return await apiService.post('/requests', requestData);
   },
 
   getMyRequests: async () => {
-    return apiService.get('/requests/my');
+    return await apiService.get('/requests/my');
   },
 
   getPendingRequests: async () => {
-    return apiService.get('/requests/pending');
+    return await apiService.get('/requests/pending');
   },
 
   updateRequestStatus: async (requestId, status) => {
-    return apiService.put(`/requests/${requestId}`, { status });
+    return await apiService.put(`/requests/${requestId}`, { status });
+  },
+
+  getRequestById: async (requestId) => {
+    try {
+      const response = await apiService.get(`/requests/${requestId}`);
+      return response;
+    } catch (error) {
+      if (error.response?.status === 404) {
+        throw new Error('Request not found');
+      }
+      throw error;
+    }
   }
 };
 

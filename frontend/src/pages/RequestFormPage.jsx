@@ -4,19 +4,34 @@ import requestService from '../services/requestService';
 import equipmentService from '../services/equipmentService';
 
 const priorityStyles = {
-  low: 'bg-green-100 text-green-800',
-  medium: 'bg-yellow-100 text-yellow-800',
-  high: 'bg-red-100 text-red-800',
-  critical: 'bg-orange-100 text-orange-800'
+  low: {
+    bg: 'bg-green-50',
+    text: 'text-green-800',
+    border: 'border-green-200'
+  },
+  medium: {
+    bg: 'bg-yellow-50',
+    text: 'text-yellow-800',
+    border: 'border-yellow-200'
+  },
+  high: {
+    bg: 'bg-orange-50',
+    text: 'text-orange-800',
+    border: 'border-orange-200'
+  },
+  critical: {
+    bg: 'bg-red-50',
+    text: 'text-red-800',
+    border: 'border-red-200'
+  }
 };
 
 const RequestFormPage = () => {
   const [equipment, setEquipment] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedEquipment, setSelectedEquipment] = useState(null);
-  const [quantity, setQuantity] = useState(1);
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState('medium');
+  const [selectedItems, setSelectedItems] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,16 +48,36 @@ const RequestFormPage = () => {
     fetchEquipment();
   }, []);
 
+  const handleAddItem = (item) => {
+    setSelectedItems(prev => [...prev, {
+      equipment_id: item.id,
+      equipment_name: item.name,
+      quantity: 1
+    }]);
+  };
+
+  const handleRemoveItem = (index) => {
+    setSelectedItems(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleItemChange = (index, field, value) => {
+    setSelectedItems(prev => prev.map((item, i) => 
+      i === index ? { ...item, [field]: value } : item
+    ));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedEquipment) return;
+    if (selectedItems.length === 0) return;
 
     try {
       await requestService.createRequest({
-        equipment_id: selectedEquipment.id,
-        quantity,
         description,
-        priority
+        priority,
+        items: selectedItems.map(item => ({
+          equipment_id: item.equipment_id,
+          quantity: item.quantity
+        }))
       });
       navigate('/requests');
     } catch (error) {
@@ -64,10 +99,8 @@ const RequestFormPage = () => {
             {equipment.map((item) => (
               <div 
                 key={item.id}
-                onClick={() => setSelectedEquipment(item)}
-                className={`p-4 border rounded-lg cursor-pointer ${
-                  selectedEquipment?.id === item.id ? 'border-green-500 bg-green-50' : ''
-                }`}
+                onClick={() => handleAddItem(item)}
+                className="p-4 border rounded-lg cursor-pointer"
               >
                 <div className="flex items-center gap-4">
                   <img 
@@ -89,38 +122,45 @@ const RequestFormPage = () => {
         <div className="bg-white p-4 rounded-lg shadow">
           <h2 className="font-semibold mb-4">Деталі запиту</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
-            {selectedEquipment && (
-              <div className="mb-4">
-                <h3 className="font-medium">Вибране спорядження:</h3>
-                <p>{selectedEquipment.name}</p>
-              </div>
-            )}
-
-            <div>
-              <label className="block mb-2">Кількість</label>
-              <input
-                type="number"
-                min="1"
-                value={quantity}
-                onChange={(e) => setQuantity(Number(e.target.value))}
-                className="w-full p-2 border rounded"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block mb-2">Пріоритет</label>
+            <div className="mb-4">
+              <label className="block mb-2">Пріоритет запиту</label>
               <select
                 value={priority}
                 onChange={(e) => setPriority(e.target.value)}
-                className={`w-full p-2 border rounded ${priorityStyles[priority]}`}
+                className={`w-full p-2 border rounded ${priorityStyles[priority].bg} ${priorityStyles[priority].text} ${priorityStyles[priority].border}`}
               >
-                <option value="low" className={priorityStyles.low}>Низький</option>
-                <option value="medium" className={priorityStyles.medium}>Середній</option>
-                <option value="high" className={priorityStyles.high}>Високий</option>
-                <option value="critical" className={priorityStyles.critical}>Критичний</option>
+                <option value="low" className={`${priorityStyles.low.bg} ${priorityStyles.low.text}`}>Низький</option>
+                <option value="medium" className={`${priorityStyles.medium.bg} ${priorityStyles.medium.text}`}>Середній</option>
+                <option value="high" className={`${priorityStyles.high.bg} ${priorityStyles.high.text}`}>Високий</option>
+                <option value="critical" className={`${priorityStyles.critical.bg} ${priorityStyles.critical.text}`}>Критичний</option>
               </select>
             </div>
+
+            {selectedItems.map((item, index) => (
+              <div key={index} className="mb-4 border p-4 rounded">
+                <h3 className="font-medium">{item.equipment_name}</h3>
+                <div className="flex gap-4 mt-2">
+                  <div>
+                    <label className="block mb-2">Кількість</label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={item.quantity}
+                      onChange={(e) => handleItemChange(index, 'quantity', Number(e.target.value))}
+                      className="w-full p-2 border rounded"
+                      required
+                    />
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveItem(index)}
+                  className="mt-2 text-red-600"
+                >
+                  Видалити
+                </button>
+              </div>
+            ))}
 
             <div>
               <label className="block mb-2">Опис/Обґрунтування</label>
@@ -134,7 +174,7 @@ const RequestFormPage = () => {
 
             <button
               type="submit"
-              disabled={!selectedEquipment}
+              disabled={selectedItems.length === 0}
               className="w-full bg-green-600 text-white py-2 px-4 rounded disabled:bg-gray-400"
             >
               Відправити запит

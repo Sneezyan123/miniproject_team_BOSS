@@ -24,7 +24,7 @@ const MainMenu = () => {
         <div className="auth-buttons">
           {isAuthenticated ? (
             <>
-              <Link to="/dashboard" className="login-button">Панель</Link>
+              <Link to="/profile" className="login-button">Профіль</Link>
               <button onClick={logout} className="login-button">Вийти</button>
             </>
           ) : (

@@ -1,63 +1,123 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import requestService from '../services/requestService';
+import { useAuth } from '../context/AuthContext';
+import RequestList from '../components/requests/RequestList';
 
 const RequestsPage = () => {
   const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
+  const { user } = useAuth();
+  const isLogistician = user?.role === 3;
 
-  const statusColors = {
-    pending: 'bg-yellow-100 text-yellow-800',
-    approved: 'bg-green-100 text-green-800',
-    rejected: 'bg-red-100 text-red-800',
-    delivered: 'bg-blue-100 text-blue-800'
+  useEffect(() => {
+    fetchRequests();
+  }, [isLogistician]);
+
+  const fetchRequests = async () => {
+    try {
+      let data;
+      if (isLogistician) {
+        data = await requestService.getPendingRequests();
+      } else {
+        data = await requestService.getMyRequests();
+      }
+      setRequests(data);
+    } catch (error) {
+      console.error('Error fetching requests:', error);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const handleStatusChange = async (requestId, status) => {
+    try {
+      await requestService.updateRequestStatus(requestId, status);
+      fetchRequests();
+    } catch (error) {
+      console.error('Error updating request status:', error);
+    }
+  };
+
+  const filteredRequests = requests.filter(request => {
+    if (filter === 'all') return true;
+    return request.items.some(item => item.status === filter);
+  });
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Запити на постачання</h1>
-        <Link 
-          to="/requests/new"
-          className="bg-green-600 text-white px-4 py-2 rounded-lg"
-        >
-          Новий запит
-        </Link>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800">
+            {isLogistician ? 'Запити на розгляді' : 'Мої запити'}
+          </h1>
+          <p className="text-gray-600 mt-1">
+            {isLogistician 
+              ? 'Керуйте запитами від військовослужбовців'
+              : 'Переглядайте статус ваших запитів на спорядження'}
+          </p>
+        </div>
+        {!isLogistician && (
+          <Link 
+            to="/requests/new"
+            className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+            </svg>
+            Новий запит
+          </Link>
+        )}
       </div>
 
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="flex border-b border-gray-200">
-          {['Всі', 'В очікуванні', 'Схвалені', 'Відхилені'].map(tab => (
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="flex p-4 border-b border-gray-200 bg-gray-50">
+          {['all', 'pending', 'approved', 'rejected'].map(filterOption => (
             <button
-              key={tab}
-              className={`px-4 py-2 ${filter === tab.toLowerCase() ? 'bg-gray-100' : ''}`}
-              onClick={() => setFilter(tab.toLowerCase())}
+              key={filterOption}
+              className={`px-4 py-2 rounded-md mr-2 transition-colors ${
+                filter === filterOption 
+                  ? 'bg-green-600 text-white shadow-sm' 
+                  : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+              }`}
+              onClick={() => setFilter(filterOption)}
             >
-              {tab}
+              {filterOption === 'all' ? 'Всі' :
+               filterOption === 'pending' ? 'В очікуванні' :
+               filterOption === 'approved' ? 'Схвалені' : 'Відхилені'}
             </button>
           ))}
         </div>
 
         <div className="p-4">
-          {requests.length === 0 ? (
-            <p className="text-center text-gray-500">Немає запитів</p>
-          ) : (
-            <div className="space-y-4">
-              {requests.map(request => (
-                <div key={request.id} className="border rounded-lg p-4">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="font-semibold">{request.item}</h3>
-                      <p className="text-sm text-gray-600">
-                        Кількість: {request.quantity}
-                      </p>
-                    </div>
-                    <span className={`px-2 py-1 rounded-full text-sm ${statusColors[request.status]}`}>
-                      {request.status}
-                    </span>
-                  </div>
-                </div>
-              ))}
+          {loading ? (
+            <div className="flex justify-center items-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
             </div>
+          ) : requests.length === 0 ? (
+            <div className="text-center py-8">
+              <div className="text-gray-400 mb-2">
+                <svg className="mx-auto h-12 w-12" fill="none" strokeWidth="1.5" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                </svg>
+              </div>
+              <p className="text-gray-500">Немає запитів</p>
+              {!isLogistician && (
+                <Link 
+                  to="/requests/new"
+                  className="text-green-600 hover:text-green-700 mt-2 inline-block"
+                >
+                  Створити новий запит
+                </Link>
+              )}
+            </div>
+          ) : (
+            <RequestList 
+              requests={filteredRequests}
+              onStatusChange={handleStatusChange}
+              isLogistician={isLogistician}
+            />
           )}
         </div>
       </div>

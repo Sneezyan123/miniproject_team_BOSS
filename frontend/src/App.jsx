@@ -11,6 +11,8 @@ import InventoryPage from './pages/InventoryPage';
 import RequestsPage from './pages/RequestsPage';
 import RequestFormPage from './pages/RequestFormPage';
 import EquipmentDetailPage from './pages/EquipmentDetailPage';
+import RequestDetailsPage from './pages/RequestDetailsPage';
+import UserProfilePage from './pages/UserProfilePage';
 
 function App() {
   return (
@@ -50,6 +52,22 @@ function App() {
           element={
             <PrivateRoute>
               <RequestFormPage />
+            </PrivateRoute>
+          } 
+        />
+        <Route 
+          path="requests/:id" 
+          element={
+            <PrivateRoute>
+              <RequestDetailsPage />
+            </PrivateRoute>
+          } 
+        />
+        <Route 
+          path="profile" 
+          element={
+            <PrivateRoute>
+              <UserProfilePage />
             </PrivateRoute>
           } 
         />

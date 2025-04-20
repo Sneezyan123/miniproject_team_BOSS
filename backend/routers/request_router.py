@@ -15,6 +15,7 @@ async def create_request(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
+    print(f"reQWOEQWEKQOWEKOQquest: {request}")
     return await request_service.create_request(request, current_user.id, db)
 
 @router.get("/my", response_model=list[RequestResponse])
@@ -22,16 +23,24 @@ async def get_my_requests(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    return await request_service.get_user_requests(current_user.id, db)
+    try:
+        requests = await request_service.get_user_requests(current_user.id, db)
+        return requests
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/pending", response_model=list[RequestResponse])
 async def get_pending_requests(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    if current_user.role.name != RoleEnum.logistician:
+    if current_user.role_id != 3:  # Check for logistician role
         raise HTTPException(status_code=403, detail="Not authorized")
-    return await request_service.get_pending_requests(db)
+    try:
+        requests = await request_service.get_pending_requests(db)
+        return requests
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.put("/{request_id}", response_model=RequestResponse)
 async def update_request_status(
@@ -43,3 +52,30 @@ async def update_request_status(
     if current_user.role.name != RoleEnum.logistician:
         raise HTTPException(status_code=403, detail="Not authorized")
     return await request_service.update_request_status(request_id, request_update.status, db)
+
+@router.post("/request-many")
+async def create_requests(
+    requests: list[RequestCreate],
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    print(f"requWEOKXOPQEKPOWQEPQWOKEXOPQKEXOPQWKPEXQKOPEXKQWPOEXKQWOPEXKQPOWEXKPQXEOKests: {requests}")
+    for request in requests:
+        await request_service.create_request(request, current_user.id, db)
+    return {"message": "Requests created successfully"}
+
+@router.get("/{request_id}", response_model=RequestResponse)
+async def get_request_by_id(
+    request_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    request = await request_service.get_request_by_id(request_id, db)
+    if not request:
+        raise HTTPException(status_code=404, detail="Request not found")
+    
+    # Check if user has access to this request
+    if current_user.role_id != 3 and request.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to view this request")
+        
+    return request
