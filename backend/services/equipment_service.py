@@ -58,3 +58,15 @@ async def generate_ai_description(name: str, purpose: str) -> str:
         return response.json().get("choices")[0].get("message").get("content")
     except Exception as e:
         raise Exception(f"Failed to generate AI description: {str(e)}")
+
+async def update_equipment(equipment_id: int, equipment: EquipmentBase, db: AsyncSession):
+    result = await db.execute(
+        select(Equipment).where(Equipment.id == equipment_id)
+    )
+    db_equipment = result.scalar_one_or_none()
+    if db_equipment:
+        for key, value in equipment.model_dump(exclude_unset=True).items():
+            setattr(db_equipment, key, value)
+        await db.commit()
+        await db.refresh(db_equipment)
+    return db_equipment

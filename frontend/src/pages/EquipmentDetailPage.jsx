@@ -2,13 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import equipmentService from '../services/equipmentService';
 import { useAuth } from '../context/AuthContext';
+import EditEquipmentModal from '../components/equipment/EditEquipmentModal';
 
 const EquipmentDetailPage = () => {
   const [equipment, setEquipment] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const isLogistician = user?.role === 3 || user?.role === 'logistician';
 
   useEffect(() => {
     const fetchEquipment = async () => {
@@ -25,6 +28,11 @@ const EquipmentDetailPage = () => {
     fetchEquipment();
   }, [id]);
 
+  const handleEditSuccess = async () => {
+    const data = await equipmentService.getEquipmentById(id);
+    setEquipment(data);
+  };
+
   if (loading) {
     return <div className="container mx-auto px-4 py-8">Loading...</div>;
   }
@@ -35,15 +43,25 @@ const EquipmentDetailPage = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <button 
-        onClick={() => navigate(-1)}
-        className="mb-6 flex items-center text-gray-600 hover:text-gray-900"
-      >
-        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"/>
-        </svg>
-        Back
-      </button>
+      <div className="flex justify-between items-center mb-6">
+        <button 
+          onClick={() => navigate(-1)}
+          className="flex items-center text-gray-600 hover:text-gray-900"
+        >
+          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+          Back
+        </button>
+        {isLogistician && (
+          <button
+            onClick={() => setIsEditModalOpen(true)}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            Редагувати
+          </button>
+        )}
+      </div>
 
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
@@ -93,6 +111,13 @@ const EquipmentDetailPage = () => {
           </div>
         </div>
       </div>
+
+      <EditEquipmentModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onSuccess={handleEditSuccess}
+        equipment={equipment}
+      />
     </div>
   );
 };

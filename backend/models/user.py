@@ -7,6 +7,7 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     password = Column(String)
     email = Column(String, unique=True, index=True)
+    avatar = Column(String, nullable=True)
     role_id = Column(Integer, ForeignKey('roles.id'))
     role = relationship("Role", back_populates="user", uselist=False)
     equipment = relationship("Equipment", back_populates="owner")

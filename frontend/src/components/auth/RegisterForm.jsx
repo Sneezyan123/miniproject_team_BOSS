@@ -10,6 +10,7 @@ const RegisterForm = () => {
   const [userData, setUserData] = useState({
     email: '',
     password: '',
+    confirmPassword: '',
     role: 'user'
   });
   const [errors, setErrors] = useState({});
@@ -28,17 +29,43 @@ const RegisterForm = () => {
       delete newErrors[name];
       setErrors(newErrors);
     }
+
+    if (name === 'confirmPassword' || (name === 'password' && userData.confirmPassword)) {
+      if (name === 'password' && value !== userData.confirmPassword) {
+        setErrors(prev => ({ ...prev, confirmPassword: 'Паролі не співпадають' }));
+      } else if (name === 'confirmPassword' && value !== userData.password) {
+        setErrors(prev => ({ ...prev, confirmPassword: 'Паролі не співпадають' }));
+      } else {
+        const newErrors = { ...errors };
+        delete newErrors.confirmPassword;
+        setErrors(newErrors);
+      }
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (userData.password !== userData.confirmPassword) {
+      setErrors(prev => ({ ...prev, confirmPassword: 'Паролі не співпадають' }));
+      return;
+    }
+
     try {
-      console.log(userData)
-      const response = await register(userData);
+      const validationResult = validateRegistrationForm(userData);
+      console.log(validationResult);
+      if (!validationResult.isValid) {
+        setErrors(validationResult.errors);
+        return;
+      }
+
+      const { confirmPassword, ...registrationData } = userData;
+      const response = await register(registrationData);
+      console.log(response);
       if (response.token) {
         localStorage.setItem('token', response.token);
-        authLogin(userData);
-        navigate('/');
+        authLogin(response.user);
+        navigate('/profile');
       }
     } catch (error) {
       setErrors({ submit: error.message || 'Помилка реєстрації' });
@@ -65,6 +92,15 @@ const RegisterForm = () => {
           value={userData.password}
           onChange={handleChange}
           error={errors.password}
+          required
+        />
+        <Input
+          type="password"
+          name="confirmPassword"
+          label="Підтвердження паролю"
+          value={userData.confirmPassword}
+          onChange={handleChange}
+          error={errors.confirmPassword}
           required
         />
         

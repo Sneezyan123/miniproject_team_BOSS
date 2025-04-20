@@ -59,7 +59,6 @@ async def create_requests(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    print(f"requWEOKXOPQEKPOWQEPQWOKEXOPQKEXOPQWKPEXQKOPEXKQWPOEXKQWOPEXKQPOWEXKPQXEOKests: {requests}")
     for request in requests:
         await request_service.create_request(request, current_user.id, db)
     return {"message": "Requests created successfully"}

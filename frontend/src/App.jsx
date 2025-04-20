@@ -13,6 +13,7 @@ import RequestFormPage from './pages/RequestFormPage';
 import EquipmentDetailPage from './pages/EquipmentDetailPage';
 import RequestDetailsPage from './pages/RequestDetailsPage';
 import UserProfilePage from './pages/UserProfilePage';
+import AboutPage from './pages/AboutPage';
 
 function App() {
   return (
@@ -71,6 +72,7 @@ function App() {
             </PrivateRoute>
           } 
         />
+        <Route path="about" element={<AboutPage />} />
       </Route>
     </Routes>
   );

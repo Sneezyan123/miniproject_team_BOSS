@@ -6,7 +6,6 @@ import CreateEquipmentModal from "../components/equipment/CreateEquipmentModal";
 
 const StoragePage = () => {
   const { user: authUser } = useAuth();
-  console.log(authUser);
   const navigate = useNavigate();
   const [weapons, setWeapons] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,7 +15,9 @@ const StoragePage = () => {
     humanitarian: false,
     vehicle: false
   });
+  const [quantityFilter, setQuantityFilter] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const isLogistician = authUser?.role === 3 || authUser?.role === "logistician";
 
   useEffect(() => {
     fetchWeapons();
@@ -41,9 +42,14 @@ const StoragePage = () => {
   };
 
   const filteredWeapons = weapons.filter(weapon => {
+    // First apply purpose filters
     const activeFilters = Object.entries(filters).filter(([_, isActive]) => isActive);
-    if (activeFilters.length === 0) return true;
-    return filters[weapon.purpose];
+    const passesTypeFilter = activeFilters.length === 0 || filters[weapon.purpose];
+    
+    // Then apply quantity filter
+    const passesQuantityFilter = weapon.quantity >= quantityFilter;
+
+    return passesTypeFilter && passesQuantityFilter;
   });
 
   return (
@@ -88,12 +94,17 @@ const StoragePage = () => {
           </div>
           <div>
             <h3 className="font-bold">Кількість</h3>
-            <input
-              type="range"
-              min="0"
-              max="10"
-              className="w-full mt-2"
-            />
+            <div className="flex items-center gap-2">
+              <input
+                type="range"
+                min="0"
+                max="10"
+                value={quantityFilter}
+                onChange={(e) => setQuantityFilter(Number(e.target.value))}
+                className="w-full mt-2"
+              />
+              <span className="text-sm">{quantityFilter}+</span>
+            </div>
           </div>
         </aside>
 
@@ -106,7 +117,7 @@ const StoragePage = () => {
               className="border border-gray-300 rounded-md px-4 py-2 w-1/2"
             />
             <div className="flex space-x-2">
-              {authUser?.role === "logistician" || authUser?.role === 3 && (
+              {isLogistician && (
                 <button 
                   onClick={() => setIsModalOpen(true)}
                   className="bg-green-700 text-white px-4 py-2 rounded-md hover:bg-green-800 transition-colors"
@@ -114,12 +125,6 @@ const StoragePage = () => {
                   Додати спорядження
                 </button>
               )}
-              <button className="bg-gray-200 px-4 py-2 rounded-md">
-                Зброя NATO
-              </button>
-              <button className="bg-gray-200 px-4 py-2 rounded-md">
-                Українська зброя
-              </button>
             </div>
           </div>
 
@@ -134,7 +139,9 @@ const StoragePage = () => {
               filteredWeapons.map((weapon) => (
                 <div 
                   key={weapon.id} 
-                  className="bg-white shadow-md rounded-lg p-4 cursor-pointer hover:shadow-lg transition-shadow"
+                  className={`bg-white shadow-md rounded-lg p-4 cursor-pointer hover:shadow-lg transition-shadow ${
+                    weapon.quantity === 0 ? 'opacity-50 grayscale' : ''
+                  }`}
                   onClick={() => navigate(`/storage/${weapon.id}`)}
                 >
                   <img

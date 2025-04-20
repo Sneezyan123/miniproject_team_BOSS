@@ -30,6 +30,18 @@ async def delete_equipment(equipment_id: int, db: AsyncSession = Depends(get_db)
         raise HTTPException(status_code=404, detail="Equipment not found")
     return {"message": "Equipment deleted successfully"}
 
+@router.put("/{equipment_id}")
+async def update_equipment(
+    equipment_id: int, 
+    equipment: EquipmentBase,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    updated_equipment = await equipment_service.update_equipment(equipment_id, equipment, db)
+    if not updated_equipment:
+        raise HTTPException(status_code=404, detail="Equipment not found")
+    return updated_equipment
+
 @router.get("/by_user/{user_id}")
 async def get_user_equipment(user_id: int, db: AsyncSession = Depends(get_db)):
     equipment = await equipment_service.get_equipment_by_user_id(user_id, db)

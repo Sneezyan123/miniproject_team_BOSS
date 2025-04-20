@@ -9,7 +9,7 @@ const RequestsPage = () => {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const { user } = useAuth();
-  const isLogistician = user?.role === 3;
+  const isLogistician = user?.role === 3 || user?.role === "logistician";
 
   useEffect(() => {
     fetchRequests();

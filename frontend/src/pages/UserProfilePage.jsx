@@ -45,7 +45,7 @@ const UserProfilePage = () => {
             </div>
             <div className="mt-4">
               <img
-                src={profile?.avatar_url || '/default-avatar.png'}
+                src={profile?.avatar || '/default-avatar.png'}
                 alt="Profile"
                 className="h-32 w-32 rounded-full object-cover border-4 border-green-200"
               />

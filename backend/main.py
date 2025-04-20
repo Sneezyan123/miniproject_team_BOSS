@@ -26,9 +26,14 @@ async def initialize_roles():
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
-        # await conn.run_sync(Base.metadata.drop_all) #reset database
         await conn.run_sync(Base.metadata.create_all)
-        # await initialize_roles()
+        
+    # Initialize roles in a separate context
+    try:
+        await initialize_roles()
+    except Exception as e:
+        print(f"Error initializing roles: {e}")
+    
     yield
 
 app = FastAPI(lifespan=lifespan)

@@ -28,8 +28,8 @@ const LoginForm = () => {
     
     try {
       const userData = await login(credentials);
-      authLogin(userData);
-      navigate('/dashboard');
+      authLogin(userData.user);
+      navigate('/profile');
     } catch (err) {
       setError('Невірний логін або пароль');
     }

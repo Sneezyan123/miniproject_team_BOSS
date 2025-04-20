@@ -5,13 +5,20 @@ const API_URL = "http://localhost:8000/user";  // Changed from 0.0.0.0 to localh
 export const register = async (userData) => {
   try {
     const response = await axios.post(`${API_URL}/register`, userData);
-    if (response.data.token) {
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
+    if (response.data) {
+      // If token exists in response, store it
+      if (response.data.token) {
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+      }
+      return response.data;
     }
-    return response.data;
+    throw new Error('Invalid response from server');
   } catch (error) {
-    throw error.response ? error.response.data : new Error('Помилка реєстрації');
+    if (error.response && error.response.status === 400) {
+      throw new Error(error.response.data.detail || 'Email already exists');
+    }
+    throw new Error('Помилка реєстрації');
   }
 };
 
