@@ -42,6 +42,19 @@ async def get_pending_requests(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@router.get("/approved", response_model=list[RequestResponse])
+async def get_approved_requests(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    if current_user.role_id != 3:  # Check for logistician role
+        raise HTTPException(status_code=403, detail="Not authorized")
+    try:
+        requests = await request_service.get_approved_requests(db)
+        return requests
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @router.put("/{request_id}", response_model=RequestResponse)
 async def update_request_status(
     request_id: int,

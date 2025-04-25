@@ -33,6 +33,13 @@ const generateAIDescription = async (equipmentData) => {
   return apiService.post('/equipment/generate-description', equipmentData);
 }
 
+const updateQuantity = async (equipmentId, newQuantity) => {
+  const response = await apiService.patch(`/equipment/${equipmentId}/quantity`, {
+    quantity: newQuantity
+  });
+  return response.data;
+};
+
 export default {
   getAllEquipment,
   getEquipmentById,
@@ -40,5 +47,6 @@ export default {
   updateEquipment,
   deleteEquipment,
   getFreeEquipment,
-  generateAIDescription
+  generateAIDescription,
+  updateQuantity
 };

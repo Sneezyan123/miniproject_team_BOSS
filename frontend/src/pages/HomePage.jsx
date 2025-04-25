@@ -19,11 +19,11 @@ const HomePage = () => {
       <div className="hero-content">
         <div className="hero-title-card">
           <h1 className="hero-title">Вітаємо!</h1>
-          <p className="hero-subtitle">якийсь текст</p>
+          <p className="hero-subtitle">З'єднуємо потребу з допомогою</p>
         </div>
         
         <div className="hero-text-card">
-          <p>якийсь текст </p>
+          <p>"Забезпечено" — це сучасна логістична платформа, яка об'єднує військових, державу і логістів задля швидкого та ефективного постачання всього необхідного на фронт.</p>
         </div>
 
         <div className="hero-buttons">

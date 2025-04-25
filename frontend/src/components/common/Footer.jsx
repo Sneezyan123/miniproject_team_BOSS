@@ -7,9 +7,9 @@ const Footer = () => {
       <div className="footer-container">
         <div className="footer-links">
           <Link to="/storage">Склад</Link>
-          <Link to="/support">Технічна підтримка</Link>
+          <Link to="/about">Технічна підтримка</Link>
         </div>
-        <p className="footer-copyright">© {new Date().getFullYear()} App name</p>
+        <p className="footer-copyright">© {new Date().getFullYear()} Забезпечено</p>
       </div>
     </footer>
   );

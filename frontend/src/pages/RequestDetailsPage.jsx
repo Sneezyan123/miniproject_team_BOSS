@@ -10,7 +10,7 @@ const RequestDetailsPage = () => {
   const [request, setRequest] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const isLogistician = user?.role === 3;
+  const isLogistician = user?.role === 3 || user?.role === 'logistician';
 
   const getPriorityLabel = (priority) => {
     const labels = {
@@ -49,17 +49,6 @@ const RequestDetailsPage = () => {
     }
   };
 
-  const handleDelete = async () => {
-    if (window.confirm('Ви впевнені, що хочете видалити цей запит?')) {
-      try {
-        await requestService.deleteRequest(id);
-        navigate('/requests');
-      } catch (error) {
-        console.error('Error deleting request:', error);
-      }
-    }
-  };
-
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8 flex justify-center">
@@ -92,44 +81,40 @@ const RequestDetailsPage = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
         <div className="p-6">
+          <div className="flex justify-between items-center mb-6">
+            <button 
+              onClick={() => navigate(-1)}
+              className="flex items-center text-gray-600 hover:text-gray-900"
+            >
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"/>
+              </svg>
+              Назад
+            </button>
+            {isLogistician && request.items.some(item => item.status === 'pending') && (
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleStatusChange('approved')}
+                  className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                >
+                  Прийняти
+                </button>
+                <button
+                  onClick={() => handleStatusChange('rejected')}
+                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                >
+                  Відхилити
+                </button>
+              </div>
+            )}
+          </div>
+
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Запит #{request.id}</h1>
               <p className="text-sm text-gray-500">
                 Створено: {new Date(request.created_at).toLocaleString('uk-UA')}
               </p>
-            </div>
-            <div className="flex gap-3">
-              <button
-                onClick={() => navigate('/requests')}
-                className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
-              >
-                Назад
-              </button>
-              {(isLogistician || request.user_id === user.id) && 
-                <button
-                  onClick={handleDelete}
-                  className="px-4 py-2 text-white bg-red-600 rounded-md hover:bg-red-700"
-                >
-                  Видалити запит
-                </button>
-              }
-              {isLogistician && request.items.some(item => item.status === 'pending') && (
-                <>
-                  <button
-                    onClick={() => handleStatusChange('approved')}
-                    className="px-4 py-2 text-white bg-green-600 rounded-md hover:bg-green-700"
-                  >
-                    Схвалити всі
-                  </button>
-                  <button
-                    onClick={() => handleStatusChange('rejected')}
-                    className="px-4 py-2 text-white bg-red-600 rounded-md hover:bg-red-700"
-                  >
-                    Відхилити всі
-                  </button>
-                </>
-              )}
             </div>
           </div>
 

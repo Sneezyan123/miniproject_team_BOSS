@@ -60,6 +60,19 @@ async def get_pending_requests(db: AsyncSession):
     result = await db.execute(query)
     return result.unique().scalars().all()
 
+async def get_approved_requests(db: AsyncSession):
+    query = (
+        select(EquipmentRequest)
+        .options(
+            joinedload(EquipmentRequest.items).joinedload(RequestItem.equipment)
+        )
+        .join(RequestItem)
+        .filter(RequestItem.status == RequestStatus.approved)
+        .distinct()
+    )
+    result = await db.execute(query)
+    return result.unique().scalars().all()
+
 async def get_request_by_id(request_id: int, db: AsyncSession):
     query = (
         select(EquipmentRequest)
@@ -71,13 +84,34 @@ async def get_request_by_id(request_id: int, db: AsyncSession):
 
 async def update_request_status(request_id: int, status: RequestStatus, db: AsyncSession):
     result = await db.execute(
-        select(EquipmentRequest).where(EquipmentRequest.id == request_id)
+        select(EquipmentRequest)
+        .options(
+            joinedload(EquipmentRequest.items).joinedload(RequestItem.equipment)
+        )
+        .filter(EquipmentRequest.id == request_id)
     )
-    request = result.scalar_one_or_none()
+    request = result.unique().scalar_one_or_none()
+    
     if request:
-        request.status = status
+        # Update all items status at once
+        for item in request.items:
+            item.status = status
+            if status == RequestStatus.approved and item.equipment:
+                item.equipment.owner_id = request.user_id
+                item.equipment.quantity = item.quantity
+                
         await db.commit()
         await db.refresh(request)
+        
+        # Refresh relationships after commit
+        result = await db.execute(
+            select(EquipmentRequest)
+            .options(
+                joinedload(EquipmentRequest.items).joinedload(RequestItem.equipment)
+            )
+            .filter(EquipmentRequest.id == request_id)
+        )
+        request = result.unique().scalar_one_or_none()
     return request
 
 async def delete_request(request_id: int, db: AsyncSession):

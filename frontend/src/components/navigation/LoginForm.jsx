@@ -45,7 +45,6 @@ const LoginForm = () => {
           label="Електронна пошта"
           value={credentials.email}
           onChange={handleChange}
-          error={error}
           required
         />
         <Input
@@ -54,11 +53,10 @@ const LoginForm = () => {
           label="Пароль"
           value={credentials.password}
           onChange={handleChange}
-          error={error}
           required
         />
         
-        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+        {error && <p className="text-red-500 text-sm mb-4 text-center">{error}</p>}
         
         <Button type="submit" className="w-full bg-green-900 hover:bg-green-800 text-white py-2 px-4 rounded-md transition-colors">
           Увійти

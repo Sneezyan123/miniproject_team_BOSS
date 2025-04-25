@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import equipmentService from '../../services/equipmentService';
 
 const RequestList = ({ requests = [], onStatusChange, isLogistician }) => {
   const navigate = useNavigate();
@@ -17,9 +18,9 @@ const RequestList = ({ requests = [], onStatusChange, isLogistician }) => {
       )
     },
     approved: {
-      bg: 'bg-green-50',
-      text: 'text-green-800',
-      border: 'border-green-200',
+      bg: 'bg-emerald-50',
+      text: 'text-emerald-800',
+      border: 'border-emerald-200',
       icon: (
         <svg className="h-5 w-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
@@ -27,9 +28,9 @@ const RequestList = ({ requests = [], onStatusChange, isLogistician }) => {
       )
     },
     rejected: {
-      bg: 'bg-red-50',
-      text: 'text-red-800',
-      border: 'border-red-200',
+      bg: 'bg-rose-50',
+      text: 'text-rose-800',
+      border: 'border-rose-200',
       icon: (
         <svg className="h-5 w-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -40,9 +41,9 @@ const RequestList = ({ requests = [], onStatusChange, isLogistician }) => {
 
   const priorityColors = {
     low: {
-      bg: 'bg-green-50',
-      text: 'text-green-800',
-      border: 'border-green-200'
+      bg: 'bg-teal-50',
+      text: 'text-teal-800',
+      border: 'border-teal-200'
     },
     medium: {
       bg: 'bg-yellow-50',
@@ -79,14 +80,65 @@ const RequestList = ({ requests = [], onStatusChange, isLogistician }) => {
     return labels[priority] || priority;
   };
 
+  const getRequestStyle = (items, priority) => {
+    // If all items are approved, show green
+    const allApproved = items.every(item => item.status === 'approved');
+    if (allApproved) {
+      return 'bg-emerald-50 border-emerald-200';
+    }
+    
+    // If any item is rejected, show red
+    const hasRejected = items.some(item => item.status === 'rejected');
+    if (hasRejected) {
+      return 'bg-rose-50 border-rose-200';
+    }
+
+    // If all items are pending, show priority color
+    const allPending = items.every(item => item.status === 'pending');
+    if (allPending) {
+      const style = priorityColors[priority] || priorityColors.medium;
+      return `${style.bg} ${style.border}`;
+    }
+
+    // Default yellow for mixed states
+    return 'bg-yellow-50 border-yellow-200';
+  };
+
+  const canRequestBeApproved = (items) => {
+    return items.every(item => {
+      const equipment = item.equipment;
+      return equipment && equipment.quantity >= item.quantity;
+    });
+  };
+
+  const handleApprove = async (e, requestId, items) => {
+    e.stopPropagation();
+    try {
+      // First update equipment quantities
+      for (const item of items) {
+        await equipmentService.updateQuantity(
+          item.equipment.id, 
+          item.equipment.quantity - item.quantity
+        );
+      }
+      // Then approve the request
+      await onStatusChange(requestId, 'approved');
+    } catch (error) {
+      console.error('Error approving request:', error);
+    }
+  };
+
   return (
     <div className="space-y-4">
       {requests.map((request) => {
+        const requestStyle = getRequestStyle(request.items, request.priority);
         const priorityStyle = getPriorityStyle(request.priority);
+        const canApprove = canRequestBeApproved(request.items);
+        
         return (
           <div 
             key={request.id} 
-            className={`border-2 rounded-lg overflow-hidden cursor-pointer hover:shadow-md transition-shadow ${priorityStyle.bg} ${priorityStyle.border}`}
+            className={`border-2 rounded-lg overflow-hidden cursor-pointer hover:shadow-md transition-shadow ${requestStyle}`}
             onClick={() => navigate(`/requests/${request.id}`)}
           >
             <div className="p-4">
@@ -110,6 +162,30 @@ const RequestList = ({ requests = [], onStatusChange, isLogistician }) => {
                     </p>
                   </div>
                 </div>
+                {isLogistician && request.items.some(item => item.status === 'pending') && (
+                  <div className="flex gap-2">
+                    <button
+                      onClick={(e) => handleApprove(e, request.id, request.items)}
+                      disabled={!canApprove}
+                      className={`px-4 py-2 text-white rounded-md text-sm ${
+                        canApprove 
+                          ? 'bg-green-600 hover:bg-green-700' 
+                          : 'bg-gray-400 cursor-not-allowed'
+                      }`}
+                    >
+                      Прийняти
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onStatusChange(request.id, 'rejected');
+                      }}
+                      className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 text-sm"
+                    >
+                      Відхилити
+                    </button>
+                  </div>
+                )}
               </div>
 
               {request.description && (
