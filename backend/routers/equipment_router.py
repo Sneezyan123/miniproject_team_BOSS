@@ -9,9 +9,25 @@ from authentication.auth import get_current_user
 router = APIRouter()
 
 @router.post("/")
-async def create_equipment(equipment: EquipmentBase, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
-    equipment.owner_id = user.id
-    return await equipment_service.create_equipment(equipment, db)
+async def create_equipment(
+    equipment: EquipmentBase, 
+    user: User = Depends(get_current_user), 
+    db: AsyncSession = Depends(get_db)
+):
+    print(f"Creating equipment: {equipment}")
+    # First create the equipment
+    db_equipment = await equipment_service.create_equipment(equipment, db)
+    
+    # If needed, create a UserEquipment association
+    if equipment.quantity > 0:
+        await equipment_service.assign_equipment_to_user(
+            db_equipment.id, 
+            user.id, 
+            equipment.quantity, 
+            db
+        )
+    
+    return db_equipment
 
 @router.get("/")
 async def get_equipment(db: AsyncSession = Depends(get_db)):
@@ -42,9 +58,12 @@ async def update_equipment(
         raise HTTPException(status_code=404, detail="Equipment not found")
     return updated_equipment
 
-@router.get("/by_user/{user_id}")
-async def get_user_equipment(user_id: int, db: AsyncSession = Depends(get_db)):
-    equipment = await equipment_service.get_equipment_by_user_id(user_id, db)
+@router.get("/user/equipment")
+async def get_current_user_equipment(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    equipment = await equipment_service.get_equipment_by_user_id(current_user.id, db)
     return equipment
 
 @router.get("/free")

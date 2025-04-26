@@ -10,4 +10,4 @@ class User(Base):
     avatar = Column(String, nullable=True)
     role_id = Column(Integer, ForeignKey('roles.id'))
     role = relationship("Role", back_populates="user", uselist=False)
-    equipment = relationship("Equipment", back_populates="owner")
+    equipment_quantities = relationship("UserEquipment", back_populates="user")

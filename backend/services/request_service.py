@@ -4,6 +4,7 @@ from sqlalchemy.orm import joinedload
 from models.request import EquipmentRequest, RequestStatus
 from models.request_item import RequestItem
 from dtos.request_dto import RequestCreate
+from models.user_equipment import UserEquipment
 
 async def create_request(request: RequestCreate, user_id: int, db: AsyncSession):
     try:
@@ -93,15 +94,32 @@ async def update_request_status(request_id: int, status: RequestStatus, db: Asyn
     request = result.unique().scalar_one_or_none()
     
     if request:
-        # Update all items status at once
         for item in request.items:
             item.status = status
             if status == RequestStatus.approved and item.equipment:
-                item.equipment.owner_id = request.user_id
-                item.equipment.quantity = item.quantity
+                # Check if user already has this equipment
+                user_equipment = await db.execute(
+                    select(UserEquipment)
+                    .filter(
+                        UserEquipment.user_id == request.user_id,
+                        UserEquipment.equipment_id == item.equipment_id
+                    )
+                )
+                existing = user_equipment.scalar_one_or_none()
                 
+                if existing:
+                    existing.quantity += item.quantity
+                    item.equipment.quantity -= item.quantity
+                else:
+                    new_user_equipment = UserEquipment(
+                        user_id=request.user_id,
+                        equipment_id=item.equipment_id,
+                        quantity=item.quantity
+                    )
+                    db.add(new_user_equipment)
+                    item.equipment.quantity -= item.quantity
+        
         await db.commit()
-        await db.refresh(request)
         
         # Refresh relationships after commit
         result = await db.execute(

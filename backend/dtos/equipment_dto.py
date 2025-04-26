@@ -7,7 +7,6 @@ class EquipmentBase(BaseModel):
     description: str
     detailed_description: str = ""
     purpose: PurposeEnum
-    owner_id: str = None
     quantity: int = 0
 
 class EquipmentAIRequest(BaseModel):

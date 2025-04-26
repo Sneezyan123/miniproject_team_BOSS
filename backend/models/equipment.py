@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Enum
+from sqlalchemy import Column, Integer, String, ForeignKey, Enum, Table
 from sqlalchemy.orm import relationship
 from database.database import Base
 from enum import Enum as PyEnum
@@ -18,5 +18,4 @@ class Equipment(Base):
     detailed_description = Column(String)
     purpose = Column(Enum(PurposeEnum), nullable=False)
     quantity = Column(Integer, default=0)
-    owner_id = Column(Integer, ForeignKey("users.id"))
-    owner = relationship("User", back_populates="equipment")
+    user_quantities = relationship("UserEquipment", back_populates="equipment")

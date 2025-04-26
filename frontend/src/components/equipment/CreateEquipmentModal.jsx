@@ -44,7 +44,6 @@ const CreateEquipmentModal = ({ isOpen, onClose, onSuccess }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      console.log(formData)
       await equipmentService.createEquipment(formData);
       onSuccess();
       onClose();

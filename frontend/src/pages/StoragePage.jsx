@@ -46,11 +46,9 @@ const StoragePage = () => {
   };
 
   const filteredWeapons = weapons.filter(weapon => {
-    // First apply purpose filters
     const activeFilters = Object.entries(filters).filter(([_, isActive]) => isActive);
     const passesTypeFilter = activeFilters.length === 0 || filters[weapon.purpose];
     
-    // Then apply quantity filter
     const passesQuantityFilter = weapon.quantity >= quantityFilter;
 
     return passesTypeFilter && passesQuantityFilter;

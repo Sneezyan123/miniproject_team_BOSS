@@ -1,6 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update, delete
+from sqlalchemy.orm import joinedload
 from models.equipment import Equipment
+from models.user_equipment import UserEquipment
 from dtos.equipment_dto import EquipmentBase
 
 from openai import OpenAI
@@ -9,7 +11,9 @@ import requests
 from config import settings
 
 async def create_equipment(equipment: EquipmentBase, db: AsyncSession):
-    db_equipment = Equipment(**equipment.model_dump())
+    # Convert DTO to dict and create equipment
+    equipment_data = equipment.model_dump(exclude_unset=True)
+    db_equipment = Equipment(**equipment_data)
     db.add(db_equipment)
     await db.commit()
     await db.refresh(db_equipment)
@@ -30,11 +34,18 @@ async def delete_equipment(equipment_id: int, db: AsyncSession):
     return True
 
 async def get_equipment_by_user_id(user_id: int, db: AsyncSession):
-    result = await db.execute(select(Equipment).where(Equipment.owner_id == user_id))
+    result = await db.execute(
+        select(UserEquipment)
+        .options(joinedload(UserEquipment.equipment))
+        .filter(UserEquipment.user_id == user_id)
+    )
     return result.scalars().all()
 
 async def get_free_equipment(db: AsyncSession):
-    result = await db.execute(select(Equipment).where(Equipment.owner_id == None))
+    result = await db.execute(
+        select(Equipment)
+        .where(~Equipment.owners.any())  # Select equipment with no owners
+    )
     return result.scalars().all()
 
 async def generate_ai_description(name: str, purpose: str) -> str:
@@ -70,3 +81,48 @@ async def update_equipment(equipment_id: int, equipment: EquipmentBase, db: Asyn
         await db.commit()
         await db.refresh(db_equipment)
     return db_equipment
+
+async def assign_equipment_to_user(equipment_id: int, user_id: int, quantity: int, db: AsyncSession):
+    equipment = await get_equipment_by_id(equipment_id, db)
+    if equipment and equipment.quantity >= quantity:
+        user_equipment = UserEquipment(
+            equipment_id=equipment_id,
+            user_id=user_id,
+            quantity=quantity
+        )
+        equipment.quantity -= quantity
+        db.add(user_equipment)
+        await db.commit()
+        await db.refresh(equipment)
+        return True
+    return False
+
+async def get_user_equipment_quantity(user_id: int, equipment_id: int, db: AsyncSession):
+    result = await db.execute(
+        select(UserEquipment)
+        .filter(
+            UserEquipment.user_id == user_id,
+            UserEquipment.equipment_id == equipment_id
+        )
+    )
+    user_equipment = result.scalar_one_or_none()
+    return user_equipment.quantity if user_equipment else 0
+
+async def update_user_equipment_quantity(user_id: int, equipment_id: int, new_quantity: int, db: AsyncSession):
+    result = await db.execute(
+        select(UserEquipment)
+        .filter(
+            UserEquipment.user_id == user_id,
+            UserEquipment.equipment_id == equipment_id
+        )
+    )
+    user_equipment = result.scalar_one_or_none()
+    if user_equipment:
+        equipment = await get_equipment_by_id(equipment_id, db)
+        quantity_diff = new_quantity - user_equipment.quantity
+        if equipment.quantity >= quantity_diff:
+            equipment.quantity -= quantity_diff
+            user_equipment.quantity = new_quantity
+            await db.commit()
+            return True
+    return False

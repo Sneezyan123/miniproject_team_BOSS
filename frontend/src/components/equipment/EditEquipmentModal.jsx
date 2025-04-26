@@ -39,7 +39,6 @@ const EditEquipmentModal = ({ isOpen, onClose, onSuccess, equipment }) => {
       onSuccess();
       onClose();
     } catch (error) {
-      console.error('Error updating equipment:', error);
     }
   };
 
