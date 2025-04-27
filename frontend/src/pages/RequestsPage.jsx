@@ -19,7 +19,7 @@ const RequestsPage = () => {
     try {
       let data;
       if (isLogistician) {
-        data = await requestService.getPendingRequests();
+        data = await requestService.getAllRequests();
       } else {
         data = await requestService.getMyRequests();
       }

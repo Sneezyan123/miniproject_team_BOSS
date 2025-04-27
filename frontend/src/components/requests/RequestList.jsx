@@ -162,30 +162,6 @@ const RequestList = ({ requests = [], onStatusChange, isLogistician }) => {
                     </p>
                   </div>
                 </div>
-                {isLogistician && request.items.some(item => item.status === 'pending') && (
-                  <div className="flex gap-2">
-                    <button
-                      onClick={(e) => handleApprove(e, request.id, request.items)}
-                      disabled={!canApprove}
-                      className={`px-4 py-2 text-white rounded-md text-sm ${
-                        canApprove 
-                          ? 'bg-green-600 hover:bg-green-700' 
-                          : 'bg-gray-400 cursor-not-allowed'
-                      }`}
-                    >
-                      Прийняти
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onStatusChange(request.id, 'rejected');
-                      }}
-                      className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 text-sm"
-                    >
-                      Відхилити
-                    </button>
-                  </div>
-                )}
               </div>
 
               {request.description && (

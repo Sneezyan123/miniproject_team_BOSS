@@ -108,3 +108,14 @@ async def delete_request(
     if await request_service.delete_request(request_id, db):
         return {"message": "Request deleted successfully"}
     raise HTTPException(status_code=404, detail="Request not found")
+@router.get("/all")
+async def get_all_requests(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    try:
+        
+        requests = await request_service.get_all_requests(db)
+        return requests
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

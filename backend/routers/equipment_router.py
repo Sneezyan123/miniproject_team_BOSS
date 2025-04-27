@@ -14,18 +14,7 @@ async def create_equipment(
     user: User = Depends(get_current_user), 
     db: AsyncSession = Depends(get_db)
 ):
-    print(f"Creating equipment: {equipment}")
-    # First create the equipment
     db_equipment = await equipment_service.create_equipment(equipment, db)
-    
-    # If needed, create a UserEquipment association
-    if equipment.quantity > 0:
-        await equipment_service.assign_equipment_to_user(
-            db_equipment.id, 
-            user.id, 
-            equipment.quantity, 
-            db
-        )
     
     return db_equipment
 

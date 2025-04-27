@@ -37,6 +37,16 @@ const requestService = {
       console.error('Error deleting request:', error);
       throw error;
     }
+  },
+  
+  getAllRequests: async () => {
+    try {
+      const response = await apiService.get('/requests/all');
+      return response;
+    } catch (error) {
+      console.error('Error fetching all requests:', error);
+      throw error;
+    }
   }
 };
 

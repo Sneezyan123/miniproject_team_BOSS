@@ -142,3 +142,13 @@ async def delete_request(request_id: int, db: AsyncSession):
         await db.commit()
         return True
     return False
+
+async def get_all_requests(db: AsyncSession):
+    query = (
+        select(EquipmentRequest)
+        .options(
+            joinedload(EquipmentRequest.items).joinedload(RequestItem.equipment)
+        )
+    )
+    result = await db.execute(query)
+    return result.unique().scalars().all()
